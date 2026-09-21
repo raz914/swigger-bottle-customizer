@@ -81,9 +81,8 @@ export default function ItemBottlePreview({ side, customization, selectedSize, s
         <img ref={imageRef} src={bottleImageSrc} alt={t('bottlePreview.alt', { side })} draggable={false}
             className="item-bottle-image" onLoad={() => setIsImageLoading?.(false)} onError={() => { setImageError(true); setIsImageLoading?.(false); }} />
         {imageError && <p className="item-image-error" role="alert">{t('editor.imageError')}</p>}
-        <div ref={areaRef} className={`item-print-area ${editable ? 'is-editable' : ''}`} data-testid="print-area"
+        <div ref={areaRef} className={`item-print-area ${editable && selectedItemId ? 'is-active' : ''}`} data-testid="print-area"
             style={{ left: `${area.x * 100}%`, top: `${area.y * 100}%`, width: `${area.width * 100}%`, height: `${area.height * 100}%` }}>
-            {editable && <span className="item-size-label">{selected ? `${Math.round(selected.width * 100)}% × ${Math.round(itemHeight(selected, aspect) * 100)}%` : t('editor.printArea')}</span>}
             {items.map(raw => {
                 const item = constrainItem(raw, aspect), active = editable && item.id === selectedItemId;
                 return <div key={item.id} className={`bottle-design-item ${active ? 'is-selected' : ''}`} data-testid="design-item" data-item-id={item.id}
