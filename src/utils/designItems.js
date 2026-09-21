@@ -1,6 +1,12 @@
 // All transforms are fractions of the printable area, independent of viewport size.
 export const BOTTLE_FRAME = { width: 433, height: 650 };
-export function getPrintArea(size, side) {
+// Updated 1L product photos use a wider, differently centered bottle body.
+// Add colors here as their new photos replace the legacy assets.
+const UPDATED_1L_ASSET_COLORS = new Set(['midnight-black']);
+export function getPrintArea(size, side, color) {
+    if (size === '946ml' && UPDATED_1L_ASSET_COLORS.has(color)) return side === 'BACK'
+        ? { x: .30, y: .405, width: .34, height: .285 }
+        : { x: .35, y: .50, width: .31, height: .17 };
     if (side === 'BACK') return {
         x: size === '536ml' ? .35 : .365,
         y: .405,
@@ -11,8 +17,8 @@ export function getPrintArea(size, side) {
         ? { x: .31, y: .485, width: .35, height: .185 }
         : { x: .31, y: .50, width: .31, height: .17 };
 }
-export function areaAspect(size, side) {
-    const a = getPrintArea(size, side);
+export function areaAspect(size, side, color) {
+    const a = getPrintArea(size, side, color);
     return a.width * BOTTLE_FRAME.width / (a.height * BOTTLE_FRAME.height);
 }
 export function itemHeight(item, aspect) {

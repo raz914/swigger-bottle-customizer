@@ -49,8 +49,8 @@ export default function ItemBottlePreview({ side, customization, selectedSize, s
     const areaRef = useRef(null);
     const gesture = useRef(null);
     const imageRef = useRef(null);
-    const area = getPrintArea(selectedSize, side);
-    const aspect = areaAspect(selectedSize, side);
+    const area = getPrintArea(selectedSize, side, selectedColor);
+    const aspect = areaAspect(selectedSize, side, selectedColor);
     const items = customization[side].items;
     const isCapture = view === 'capture';
     const editable = !isCapture && !!onUpdateItem;

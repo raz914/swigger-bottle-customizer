@@ -77,7 +77,7 @@ function loadImage(src) {
 export async function captureItemSide(items, size, side, fonts, bottleSrc, color) {
     const svg = await composeItemsSvg(items, size, side, fonts);
     const [design, bottle] = await Promise.all([loadImage(svg), loadImage(bottleSrc)]);
-    const area = getPrintArea(size, side);
+    const area = getPrintArea(size, side, color);
     const canvas = document.createElement('canvas'); canvas.width = BOTTLE_FRAME.width * 3; canvas.height = BOTTLE_FRAME.height * 3;
     const ctx = canvas.getContext('2d');
     // Match the preview's object-cover image at top 9%, height 82% exactly.
