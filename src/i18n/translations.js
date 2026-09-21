@@ -13,6 +13,20 @@ const translations = {
     // ENGLISH
     // =========================================================================
     en: {
+        "editor.items": "Designs on this side",
+        "editor.addAnother": "Add another",
+        "editor.add": "Add / Done",
+        "editor.size": "Size",
+        "editor.angle": "Angle",
+        "editor.hint": "Click a design to edit. Drag to move; use the corner to resize. Sizes are relative to the print area.",
+        "editor.select": "Select {name}",
+        "editor.rotate": "Rotate design",
+        "editor.resize": "Resize design",
+        "editor.delete": "Delete design",
+        "editor.printArea": "Print area",
+        "editor.artError": "Complete the text or monogram, or choose another design.",
+        "editor.imageError": "Bottle preview could not load. Try another color or size.",
+        "editor.reviewError": "Could not prepare every design. Check for incomplete monograms or missing artwork and try again.",
         // -- Tabs / Navigation ------------------------------------------------
         'tab.front': 'Front',
         'tab.back': 'Back',
@@ -195,6 +209,20 @@ const translations = {
     // DUTCH (Nederlands)
     // =========================================================================
     nl: {
+        "editor.items": "Ontwerpen op deze zijde",
+        "editor.addAnother": "Nog een toevoegen",
+        "editor.add": "Toevoegen / Klaar",
+        "editor.size": "Grootte",
+        "editor.angle": "Hoek",
+        "editor.hint": "Klik om te bewerken. Sleep om te verplaatsen; gebruik de hoek om te vergroten. Afmetingen zijn relatief aan het graveervlak.",
+        "editor.select": "Selecteer {name}",
+        "editor.rotate": "Ontwerp draaien",
+        "editor.resize": "Formaat aanpassen",
+        "editor.delete": "Ontwerp verwijderen",
+        "editor.printArea": "Graveervlak",
+        "editor.artError": "Vul de tekst of het monogram aan, of kies een ander ontwerp.",
+        "editor.imageError": "De fles kon niet worden geladen. Probeer een andere kleur of maat.",
+        "editor.reviewError": "Niet alle ontwerpen konden worden voorbereid. Controleer onvolledige monogrammen of ontbrekende afbeeldingen en probeer opnieuw.",
         // -- Tabs / Navigation ------------------------------------------------
         'tab.front': 'Voor',
         'tab.back': 'Achter',

@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import ConfirmationModal from './ConfirmationModal';
 import { t } from '../i18n';
+import { serializeItems } from '../utils/designItems';
 
 const ReviewScreen = ({
     onClose,
@@ -81,6 +82,9 @@ const ReviewScreen = ({
                 : '';
 
         const customizationData = {
+            designVersion: 2,
+            frontItems: serializeItems(customization.FRONT.items || []),
+            backItems: serializeItems(customization.BACK.items || []),
             color: selectedColor,
             size: selectedSize || '',
             font: selectedFont,
@@ -155,7 +159,7 @@ const ReviewScreen = ({
             onRequestClose();
         }
 
-    }, [customization, selectedColor, selectedFont, selectedMonogramBySide, frontImage, backImage, frontDesignImage, backDesignImage, frontProductionImage, backProductionImage, frontProductionSvg, backProductionSvg, onRequestClose]);
+    }, [customWorld, selectedSize, customization, selectedColor, selectedFont, selectedMonogramBySide, frontImage, backImage, frontDesignImage, backDesignImage, frontProductionImage, backProductionImage, frontProductionSvg, backProductionSvg, onRequestClose]);
 
     const handleEdit = (side) => {
         setActiveTab(side);

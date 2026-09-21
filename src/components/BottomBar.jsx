@@ -1,7 +1,7 @@
 import React from 'react';
 import { t } from '../i18n';
 
-const BottomBar = ({ onRemove, onReview, isDisabled, isPreparing }) => {
+const BottomBar = ({ onRemove, onReview, onAdd, hasSelection, isDisabled, isPreparing }) => {
     const reviewDisabled = isDisabled || isPreparing;
 
     return (
@@ -9,14 +9,15 @@ const BottomBar = ({ onRemove, onReview, isDisabled, isPreparing }) => {
             <div className="max-w-md lg:max-w-none mx-auto flex space-x-3 w-full lg:px-[30px] lg:justify-end">
                 <button
                     onClick={onRemove}
-                    disabled={isDisabled || isPreparing}
-                    className={`flex-1 lg:flex-none lg:w-48 py-3 font-bold capitalize tracking-widest text-xs rounded-full transition-all duration-300 shadow-sm ${isDisabled || isPreparing
+                    disabled={!hasSelection || isPreparing}
+                    className={`flex-1 lg:flex-none lg:w-48 py-3 font-bold capitalize tracking-widest text-xs rounded-full transition-all duration-300 shadow-sm ${!hasSelection || isPreparing
                             ? 'bg-white/50 text-gray-400 cursor-not-allowed'
                             : 'bg-white/90 border border-white/60 text-gray-600 hover:shadow-md hover:-translate-y-0.5 hover:text-red-500'
                         }`}
                     style={{ letterSpacing: '1.8px' }}>
                     {t('bottomBar.remove')}
                 </button>
+                <button onClick={onAdd} disabled={!hasSelection || isPreparing} className="flex-1 lg:flex-none lg:w-40 py-3 text-xs font-bold rounded-full border border-gray-300 bg-white disabled:opacity-40">{t('editor.add')}</button>
                 <button
                     onClick={onReview}
                     disabled={reviewDisabled}

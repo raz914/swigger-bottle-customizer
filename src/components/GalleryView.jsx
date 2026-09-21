@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { galleryCategories, galleryIcons } from '../data/galleryData';
 import { t } from '../i18n';
 
-const GalleryView = ({ setView, setGraphic, selectedGraphic, activeTab, initialCategory }) => {
+const GalleryView = ({ setView, setGraphic, selectedGraphic, initialCategory }) => {
     const [view, setViewInternal] = useState('categories'); // 'categories' | 'icons'
     const [activeCategory, setActiveCategory] = useState(null);
     const contentRef = useRef(null);
@@ -63,26 +63,6 @@ const GalleryView = ({ setView, setGraphic, selectedGraphic, activeTab, initialC
                     {view === 'categories' ? t('common.back', 'Terug') : t('gallery.backToCategories')}
                 </span>
             </button>
-
-            {/* Selected Graphic Controls */}
-            {selectedGraphic && !selectedGraphic.isUpload && (
-                <div className="mb-6 flex flex-col items-start w-full px-1">
-                    <div className="flex justify-between w-full mb-1">
-                        <span className="text-[10px] font-bold text-gray-400 tracking-widest px-1">
-                            {t('gallery.selectedLabel', { name: selectedGraphic.name })} - {Math.round((selectedGraphic.scale || 1) * 100)}%
-                        </span>
-                    </div>
-                    <input
-                        type="range"
-                        min="0.2"
-                        max="1.0"
-                        step="0.05"
-                        value={selectedGraphic.scale || 1}
-                        onChange={(e) => setGraphic({ ...selectedGraphic, scale: parseFloat(e.target.value) })}
-                        className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-                    />
-                </div>
-            )}
 
             <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto pr-4 pb-6 custom-scrollbar lg:max-h-[500px]">
 
@@ -153,6 +133,5 @@ const GalleryView = ({ setView, setGraphic, selectedGraphic, activeTab, initialC
 };
 
 export default GalleryView;
-
 
 

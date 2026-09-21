@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { toPng } from 'html-to-image';
+import React, { useState, useEffect } from 'react';
 import MainView from './MainView';
 import TextView from './TextView';
 import MonogramView from './MonogramView';
@@ -8,18 +7,16 @@ import ColorSelector from './ColorSelector';
 import BottomBar from './BottomBar';
 import ReviewScreen from './ReviewScreen';
 import UploadView from './UploadView';
-import BottlePreview from './BottlePreview';
-import DesignCapture from './DesignCapture';
+import BottlePreview from './ItemBottlePreview';
+import DesignItemPanel from './DesignItemPanel';
+import { areaAspect, constrainItem, summarizeSide } from '../utils/designItems';
+import { captureItemSide } from '../utils/itemArtwork';
 import MiniNav from './MiniNav';
 import SplashScreen from './SplashScreen';
 import CustomWorldView from './CustomWorldView';
-import { monogramStyles, getMonogramFontSize, shouldDisplayMonogram, convertToCircleGlyphs, getCircleFontFamily, usesCircleGlyphs, convertToNGramGlyphs, getNGramFontFamily, usesNGramGlyphs } from '../data/monogramConfig';
-import { isIOSDevice, captureBottleSnapshotCanvas, captureDesignSnapshotCanvas } from '../utils/canvasCapture';
-import { generateProductionSvg } from '../utils/svgExport';
+import { monogramStyles } from '../data/monogramConfig';
 import { t } from '../i18n';
 
-const MAX_CAPTURE_PIXEL_RATIO = 4;
-const FALLBACK_CAPTURE_PIXEL_RATIO = 3;
 
 // Utility for robust matching: strips non-alphanumeric so "Midnight Black", "midnight-black",
 // "midnight black" all match to "midnightblack". Fixes WooCommerce attribute mismatch.
@@ -66,11 +63,6 @@ const SWIGGER_COLORS_536ML = [
 
 const Customizer = () => {
     const [activeTab, setActiveTab] = useState('FRONT');
-    const bottlePreviewRef = useRef(null);
-    const frontCaptureRef = useRef(null);
-    const backCaptureRef = useRef(null);
-    const frontDesignCaptureRef = useRef(null);
-    const backDesignCaptureRef = useRef(null);
 
     // Initial state from URL parameters (robust for WooCommerce integration)
     const getInitialState = () => {
@@ -112,7 +104,10 @@ const Customizer = () => {
     const initialState = getInitialState();
     const [selectedColor, setSelectedColor] = useState(initialState.color);
     const [selectedSize, setSelectedSize] = useState(initialState.size);
-    const [view, setView] = useState('main'); // 'main' | 'text' | 'monogram' | 'customWorld'
+    const [view, setViewState] = useState('main');
+    const [selectedItemId, setSelectedItemId] = useState(null);
+    const [editorError, setEditorError] = useState('');
+    const setView = (next) => { setSelectedItemId(null); setViewState(next); setEditorError(''); }; // 'main' | 'text' | 'monogram' | 'customWorld'
     const [galleryInitialCategory, setGalleryInitialCategory] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
     const [isImageLoading, setIsImageLoading] = useState(false);
@@ -139,8 +134,6 @@ const Customizer = () => {
         }
     };
 
-    // Force canvas capture flag for desktop testing of iOS code path
-    const [forceCanvasCapture, setForceCanvasCaptureState] = useState(false);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -152,30 +145,8 @@ const Customizer = () => {
             window.parent.postMessage({ type: 'BEFIT_SWIGGER_V2_READY' }, '*');
         }
 
-        // Expose snapshot function (html-to-image)
-        window.takeSnapshot = async () => {
-            if (bottlePreviewRef.current) {
-                try {
-                    const dataUrl = await captureNodeWithFallback(bottlePreviewRef.current, {
-                        label: 'single preview'
-                    });
-
-                    const link = document.createElement('a');
-                    link.download = `bottle-snapshot-${Date.now()}.png`;
-                    link.href = dataUrl;
-                    link.click();
-                    console.log('Snapshot taken with html-to-image!');
-                } catch (err) {
-                    console.error('Snapshot failed:', err);
-                }
-            } else {
-                console.warn('Bottle preview ref not found');
-            }
-        };
-
         return () => {
             window.removeEventListener('resize', handleResize);
-            delete window.takeSnapshot;
         };
     }, []);
 
@@ -279,7 +250,7 @@ const Customizer = () => {
             window.removeEventListener('message', handleMessage);
             window.removeEventListener('message', handleStateUpdate);
         };
-    }, []);
+    }, [selectedSize]);
 
     // Show loader ONLY when color or tab changes (URL changes)
     useEffect(() => {
@@ -291,43 +262,51 @@ const Customizer = () => {
 
     // No view restrictions needed — all views work on both sides
 
-    // Expose canvas capture testing functions for desktop iPhone simulation
-    useEffect(() => {
-        // Toggle force canvas capture mode
-        window.setForceCanvasCapture = (value) => {
-            setForceCanvasCaptureState(!!value);
-            console.log(`[Customizer] Force canvas capture: ${!!value}`);
-        };
-
-        // Get current force canvas capture state
-        window.getForceCanvasCapture = () => forceCanvasCapture;
-
-        return () => {
-            delete window.setForceCanvasCapture;
-            delete window.getForceCanvasCapture;
-        };
-    }, [forceCanvasCapture]);
-
-    const [customization, setCustomization] = useState({
-        FRONT: { text: '', monogram: '', graphic: null },
-        BACK: { text: '', monogram: '', isVertical: false, graphic: null }
+    const [designState, setCustomization] = useState({
+        FRONT: { items: [] }, BACK: { items: [] }
     });
-
-    const [selectedFont, setSelectedFont] = useState('BeFit');
-    // Store monogram style per side to allow different styles for front/back
-    const [selectedMonogramBySide, setSelectedMonogramBySide] = useState({
-        FRONT: 'Block Script',
-        BACK: 'Block Script'
-    });
-    // Helper to get current side's monogram style
-    const selectedMonogram = selectedMonogramBySide[activeTab];
-    // Helper to set current side's monogram style
-    const setSelectedMonogram = (style) => {
-        setSelectedMonogramBySide(prev => ({
-            ...prev,
-            [activeTab]: style
-        }));
+    // Legacy summaries keep existing review/order labels compatible.
+    const customization = { FRONT: summarizeSide(designState.FRONT), BACK: summarizeSide(designState.BACK) };
+    const activeItems = designState[activeTab].items;
+    const selectedItem = activeItems.find(item => item.id === selectedItemId);
+    const [defaultFont, setDefaultFont] = useState('BeFit');
+    const [defaultMonogram, setDefaultMonogram] = useState('Block Script');
+    const selectedFont = selectedItem?.font || defaultFont;
+    const selectedMonogram = selectedItem?.monogramStyle || defaultMonogram;
+    const selectedMonogramBySide = {
+        FRONT: designState.FRONT.items.find(i => i.type === 'monogram')?.monogramStyle || defaultMonogram,
+        BACK: designState.BACK.items.find(i => i.type === 'monogram')?.monogramStyle || defaultMonogram,
     };
+    const updateItem = (id, patch) => {
+        setCustomization(prev => ({ ...prev, [activeTab]: { items: prev[activeTab].items.map(item =>
+            item.id === id ? constrainItem({ ...item, ...patch }, areaAspect(selectedSize, activeTab)) : item) } }));
+    };
+    const selectItem = (id) => {
+        setSelectedItemId(id);
+        const item = activeItems.find(i => i.id === id);
+        if (item) setViewState(item.type === 'graphic' ? (item.graphic?.isUpload ? 'upload' : 'gallery') : item.type);
+    };
+    const removeItem = (id) => {
+        setCustomization(prev => ({ ...prev, [activeTab]: { items: prev[activeTab].items.filter(i => i.id !== id) } }));
+        setSelectedItemId(null);
+        setEditorError('');
+    };
+    const artworkReady = (id, aspect) => {
+        setCustomization(prev => {
+            const item = prev[activeTab].items.find(i => i.id === id);
+            if (!item || Math.abs((item.aspect || 1) - aspect) < .0001) return prev;
+            return { ...prev, [activeTab]: { items: prev[activeTab].items.map(i => i.id === id
+                ? constrainItem({ ...i, aspect }, areaAspect(selectedSize, activeTab)) : i) } };
+        });
+    };
+    const setSelectedFont = font => { setDefaultFont(font); if (selectedItem) updateItem(selectedItem.id, { font }); };
+    const setSelectedMonogram = monogramStyle => { setDefaultMonogram(monogramStyle); if (selectedItem) updateItem(selectedItem.id, { monogramStyle }); };
+    // Changing bottle format clamps every item to its new printable area.
+    useEffect(() => {
+        setCustomization(prev => Object.fromEntries(['FRONT', 'BACK'].map(side => [side, {
+            items: prev[side].items.map(item => constrainItem(item, areaAspect(selectedSize, side)))
+        }])));
+    }, [selectedSize]);
 
     // Master Fonts list (for lookups in Preview/Capture)
     const allFonts = [
@@ -412,132 +391,42 @@ const Customizer = () => {
         return false;
     };
 
-    // Derived values for the current view
-    const textInput = customization[activeTab].text;
-    const monogramInput = customization[activeTab].monogram;
-    const graphicInput = customization[activeTab].graphic;
-
-    const setTextInput = (val) => {
-        const normalized = String(val ?? '').replace(/\r\n/g, '\n');
-        const finalText = normalized;
-
-        setCustomization(prev => ({
-            ...prev,
-            [activeTab]: {
-                ...prev[activeTab],
-                text: finalText,
-                monogram: finalText ? '' : prev[activeTab].monogram,
-                graphic: finalText ? null : prev[activeTab].graphic
-            }
-        }));
-    }
-
-    const setMonogramInput = (val) => {
-        setCustomization(prev => ({
-            ...prev,
-            [activeTab]: {
-                ...prev[activeTab],
-                monogram: val,
-                text: val ? '' : prev[activeTab].text,
-                graphic: val ? null : prev[activeTab].graphic
-            }
-        }));
-    }
-
-
-    const setGraphic = (val) => {
-        setCustomization(prev => ({
-            ...prev,
-            [activeTab]: {
-                ...prev[activeTab],
-                graphic: val,
-                text: val ? '' : prev[activeTab].text,
-                monogram: val ? '' : prev[activeTab].monogram
-            }
-        }));
-    }
-
-    const setIsVertical = (val) => {
-        setCustomization(prev => ({
-            ...prev,
-            [activeTab]: {
-                ...prev[activeTab],
-                isVertical: val
-            }
-        }));
-    }
-
-    const handleRemove = () => {
-        setCustomization(prev => ({
-            ...prev,
-            [activeTab]: {
-                text: '',
-                monogram: '',
-                graphic: null
-            }
-        }));
-    };
-
-    // Helper to wait for image to load inside a ref
-    const waitForImagesToLoad = (ref) => {
-        return new Promise((resolve) => {
-            if (!ref.current) {
-                resolve();
-                return;
-            }
-            const images = ref.current.querySelectorAll('img');
-            if (images.length === 0) {
-                resolve();
-                return;
-            }
-            let loadedCount = 0;
-            const checkAllLoaded = () => {
-                loadedCount++;
-                if (loadedCount >= images.length) {
-                    resolve();
-                }
-            };
-            images.forEach((img) => {
-                if (img.complete) {
-                    checkAllLoaded();
-                } else {
-                    img.addEventListener('load', checkAllLoaded);
-                    img.addEventListener('error', checkAllLoaded); // Resolve even on error
-                }
-            });
-            // Timeout fallback in case images take too long
-            setTimeout(resolve, 2000);
-        });
-    };
-
-    const captureNodeWithFallback = async (
-        node,
-        {
-            label = 'capture',
-            backgroundColor
-        } = {}
-    ) => {
-        if (!node) return null;
-
-        const ratios = [MAX_CAPTURE_PIXEL_RATIO, FALLBACK_CAPTURE_PIXEL_RATIO];
-        let lastError = null;
-
-        for (const pixelRatio of ratios) {
-            try {
-                return await toPng(node, {
-                    cacheBust: true,
-                    skipAutoScale: true,
-                    pixelRatio,
-                    backgroundColor
-                });
-            } catch (error) {
-                lastError = error;
-                console.warn(`[Customizer] ${label} capture failed at ${pixelRatio}x`, error);
-            }
+    const textInput = selectedItem?.type === 'text' ? selectedItem.text : '';
+    const monogramInput = selectedItem?.type === 'monogram' ? selectedItem.monogram : '';
+    const graphicInput = selectedItem?.type === 'graphic' ? selectedItem.graphic : null;
+    const upsertItem = (type, patch) => {
+        setEditorError('');
+        if (selectedItem?.type === type) {
+            updateItem(selectedItem.id, patch);
+            return;
         }
-
-        throw lastError || new Error(`[Customizer] ${label} capture failed`);
+        const id = crypto.randomUUID();
+        const offset = (activeItems.length % 5) * .055;
+        const item = constrainItem({ id, type, x: .5 + offset, y: .4 + offset, width: .7,
+            aspect: type === 'text' ? 3 : 1, rotation: 0, font: defaultFont,
+            monogramStyle: defaultMonogram, ...patch }, areaAspect(selectedSize, activeTab));
+        setCustomization(prev => ({ ...prev, [activeTab]: { items: [...prev[activeTab].items, item] } }));
+        setSelectedItemId(id);
     };
+    const setTextInput = value => {
+        const text = String(value ?? '').replace(/\r\n/g, '\n');
+        if (!text.trim()) { if (selectedItem?.type === 'text') removeItem(selectedItem.id); return; }
+        upsertItem('text', { text });
+    };
+    const setMonogramInput = monogram => {
+        if (!monogram) { if (selectedItem?.type === 'monogram') removeItem(selectedItem.id); return; }
+        upsertItem('monogram', { monogram });
+    };
+    const setGraphic = graphic => {
+        if (!graphic) { if (selectedItem?.type === 'graphic') removeItem(selectedItem.id); return; }
+        const patch = { graphic };
+        if (selectedItem?.graphic && graphic.src === selectedItem.graphic.src && graphic.scale !== selectedItem.graphic.scale) {
+            patch.width = selectedItem.width * (graphic.scale || 1) / (selectedItem.graphic.scale || 1);
+        }
+        upsertItem('graphic', patch);
+    };
+    const setIsVertical = isVertical => { if (selectedItem) updateItem(selectedItem.id, { isVertical }); };
+    const handleRemove = () => { if (selectedItemId) removeItem(selectedItemId); };
 
     const hasFrontDesignContent = !!(customization.FRONT.text || customization.FRONT.monogram || customization.FRONT.graphic);
     const hasBackDesignContent = !!(customization.BACK.text || customization.BACK.monogram || customization.BACK.graphic);
@@ -545,288 +434,16 @@ const Customizer = () => {
     // Determines if any side has content (used for enabling BottomBar review button)
     const hasContent = hasFrontDesignContent || hasBackDesignContent;
 
-    const captureReviewAssets = async ({ includeDesign = true } = {}) => {
-        let frontImg = null;
-        let backImg = null;
-        let frontDesignImg = null;
-        let backDesignImg = null;
-        let frontProductionImg = null;
-        let backProductionImg = null;
-        let frontProductionSvg = null;
-        let backProductionSvg = null;
-
-        const useCanvasCapture = true; // Always use canvas capture to ensure auto-cropping
-
-        if (useCanvasCapture) {
-            console.log(`[Customizer] Using canvas capture (iOS: ${isIOSDevice()}, forced: ${forceCanvasCapture})`);
-
-            if (document.fonts && document.fonts.ready) {
-                await document.fonts.ready;
-            }
-
-            frontImg = await captureBottleSnapshotCanvas(
-                'FRONT',
-                customization,
-                selectedColor,
-                selectedFont,
-                selectedMonogramBySide.FRONT,
-                fonts,
-                getMonogramScale('FRONT', true),
-                isMobile,
-                bottleImageSrc,
-                selectedSize
-            );
-
-            backImg = await captureBottleSnapshotCanvas(
-                'BACK',
-                customization,
-                selectedColor,
-                selectedFont,
-                selectedMonogramBySide.BACK,
-                fonts,
-                getMonogramScale('BACK', true),
-                isMobile,
-                backBottleImageSrc,
-                selectedSize
-            );
-
-            if (includeDesign && hasFrontDesignContent) {
-                frontDesignImg = await captureDesignSnapshotCanvas(
-                    'FRONT',
-                    customization,
-                    selectedColor,
-                    selectedFont,
-                    selectedMonogramBySide.FRONT,
-                    fonts,
-                    getMonogramScale('FRONT', true),
-                    false, // isProduction
-                    isMobile,
-                    selectedSize
-                );
-            }
-
-            if (includeDesign && hasBackDesignContent) {
-                backDesignImg = await captureDesignSnapshotCanvas(
-                    'BACK',
-                    customization,
-                    selectedColor,
-                    selectedFont,
-                    selectedMonogramBySide.BACK,
-                    fonts,
-                    getMonogramScale('BACK', true),
-                    false, // isProduction
-                    isMobile,
-                    selectedSize
-                );
-            }
-
-            // Production Snapshots (Laser-ready)
-            if (includeDesign && hasFrontDesignContent) {
-                frontProductionImg = await captureDesignSnapshotCanvas(
-                    'FRONT',
-                    customization,
-                    selectedColor,
-                    selectedFont,
-                    selectedMonogramBySide.FRONT,
-                    fonts,
-                    getMonogramScale('FRONT', true),
-                    true, // isProduction
-                    isMobile,
-                    selectedSize
-                );
-            }
-            if (includeDesign && hasBackDesignContent) {
-                backProductionImg = await captureDesignSnapshotCanvas(
-                    'BACK',
-                    customization,
-                    selectedColor,
-                    selectedFont,
-                    selectedMonogramBySide.BACK,
-                    fonts,
-                    getMonogramScale('BACK', true),
-                    true, // isProduction
-                    isMobile,
-                    selectedSize
-                );
-            }
-
-            // --- Vector SVG Export for xTool (opentype.js outlined paths) ---
-            if (includeDesign && hasFrontDesignContent) {
-                frontProductionSvg = await generateProductionSvg(
-                    'FRONT',
-                    customization,
-                    selectedFont,
-                    selectedMonogramBySide.FRONT,
-                    fonts
-                );
-            }
-            if (includeDesign && hasBackDesignContent) {
-                backProductionSvg = await generateProductionSvg(
-                    'BACK',
-                    customization,
-                    selectedFont,
-                    selectedMonogramBySide.BACK,
-                    fonts
-                );
-            }
-        } else {
-            console.log('[Customizer] Using html-to-image capture');
-
-            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-            const refsToWait = [frontCaptureRef, backCaptureRef];
-            if (includeDesign) {
-                refsToWait.push(frontDesignCaptureRef, backDesignCaptureRef);
-            }
-
-            await Promise.all(refsToWait.map(waitForImagesToLoad));
-            await new Promise(resolve => setTimeout(resolve, 100));
-
-            if (frontCaptureRef.current) {
-                frontImg = await captureNodeWithFallback(frontCaptureRef.current, { label: 'front bottle' });
-            }
-
-            if (backCaptureRef.current) {
-                backImg = await captureNodeWithFallback(backCaptureRef.current, { label: 'back bottle' });
-            }
-
-            if (includeDesign && frontDesignCaptureRef.current && hasFrontDesignContent) {
-                frontDesignImg = await captureNodeWithFallback(frontDesignCaptureRef.current, {
-                    label: 'front design',
-                    backgroundColor: null
-                });
-            }
-
-            if (includeDesign && backDesignCaptureRef.current && hasBackDesignContent) {
-                backDesignImg = await captureNodeWithFallback(backDesignCaptureRef.current, {
-                    label: 'back design',
-                    backgroundColor: null
-                });
-            }
-        }
-
-        return { frontImg, backImg, frontDesignImg, backDesignImg, frontProductionImg, backProductionImg, frontProductionSvg, backProductionSvg };
+    const captureReviewAssets = async () => {
+        const [front, back] = await Promise.all([
+            captureItemSide(customization.FRONT.items, selectedSize, 'FRONT', fonts, bottleImageSrc, selectedColor),
+            captureItemSide(customization.BACK.items, selectedSize, 'BACK', fonts, backBottleImageSrc, selectedColor),
+        ]);
+        return { frontImg: front.bottle, backImg: back.bottle,
+            frontDesignImg: front.design, backDesignImg: back.design,
+            frontProductionImg: front.production, backProductionImg: back.production,
+            frontProductionSvg: front.svg, backProductionSvg: back.svg };
     };
-
-    // Expose canvas snapshot function for testing iOS capture path on desktop
-    useEffect(() => {
-        window.takeSnapshotCanvas = async (side = 'FRONT') => {
-            const sideUpper = side.toUpperCase();
-            if (sideUpper !== 'FRONT' && sideUpper !== 'BACK') {
-                console.error('[takeSnapshotCanvas] Invalid side. Use "FRONT" or "BACK".');
-                return;
-            }
-
-            console.log(`[takeSnapshotCanvas] Capturing ${sideUpper} with canvas compositor...`);
-
-            try {
-                // Wait for fonts
-                if (document.fonts && document.fonts.ready) {
-                    await document.fonts.ready;
-                }
-
-                const dataUrl = await captureBottleSnapshotCanvas(
-                    sideUpper,
-                    customization,
-                    selectedColor,
-                    selectedFont,
-                    selectedMonogramBySide[sideUpper],
-                    fonts,
-                    CAPTURE_MONOGRAM_SCALE,
-                    isMobile,
-                    bottleImageSrc
-                );
-
-                // Download
-                const link = document.createElement('a');
-                link.download = `bottle-canvas-${sideUpper.toLowerCase()}-${Date.now()}.png`;
-                link.href = dataUrl;
-                link.click();
-
-                console.log(`[takeSnapshotCanvas] ${sideUpper} snapshot saved!`);
-            } catch (err) {
-                console.error('[takeSnapshotCanvas] Failed:', err);
-            }
-        };
-
-        // Compare both capture methods side-by-side
-        window.compareSnapshots = async (side = 'FRONT') => {
-            const sideUpper = side.toUpperCase();
-            if (sideUpper !== 'FRONT' && sideUpper !== 'BACK') {
-                console.error('[compareSnapshots] Invalid side. Use "FRONT" or "BACK".');
-                return;
-            }
-
-            const ref = sideUpper === 'FRONT' ? frontCaptureRef : backCaptureRef;
-
-            console.log(`[compareSnapshots] Capturing ${sideUpper} with both methods...`);
-
-            try {
-                // Wait for images and fonts
-                await waitForImagesToLoad(ref);
-                if (document.fonts && document.fonts.ready) {
-                    await document.fonts.ready;
-                }
-                await new Promise(r => setTimeout(r, 100));
-
-                // Capture with html-to-image
-                let htmlToImageUrl = null;
-                if (ref.current) {
-                    htmlToImageUrl = await captureNodeWithFallback(ref.current, {
-                        label: `${sideUpper} comparison`
-                    });
-                }
-
-                // Capture with canvas
-                const canvasUrl = await captureBottleSnapshotCanvas(
-                    sideUpper,
-                    customization,
-                    selectedColor,
-                    selectedFont,
-                    selectedMonogramBySide[sideUpper],
-                    fonts,
-                    getMonogramScale(sideUpper),
-                    isMobile,
-                    bottleImageSrc
-                );
-
-                // Open comparison in new window
-                const compareWindow = window.open('', '_blank', 'width=700,height=600');
-                compareWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head><title>Snapshot Comparison - ${sideUpper}</title></head>
-                    <body style="margin:0;padding:20px;background:#f0f0f0;font-family:sans-serif;">
-                        <h3 style="margin:0 0 10px;">Snapshot Comparison: ${sideUpper}</h3>
-                        <div style="display:flex;gap:20px;">
-                            <div style="text-align:center;">
-                                <p style="margin:0 0 5px;font-weight:bold;">html-to-image</p>
-                                <img src="${htmlToImageUrl}" style="border:1px solid #ccc;max-width:300px;" />
-                            </div>
-                            <div style="text-align:center;">
-                                <p style="margin:0 0 5px;font-weight:bold;">Canvas Compositor</p>
-                                <img src="${canvasUrl}" style="border:1px solid #ccc;max-width:300px;" />
-                            </div>
-                        </div>
-                        <p style="margin-top:20px;font-size:12px;color:#666;">
-                            Canvas should match html-to-image. If text/position differs, adjust canvasCapture.js
-                        </p>
-                    </body>
-                    </html>
-                `);
-
-                console.log('[compareSnapshots] Comparison window opened!');
-            } catch (err) {
-                console.error('[compareSnapshots] Failed:', err);
-            }
-        };
-
-        return () => {
-            delete window.takeSnapshotCanvas;
-            delete window.compareSnapshots;
-        };
-    }, [customization, selectedColor, selectedFont, selectedMonogramBySide]);
-
     const handleReview = async () => {
         try {
             setIsPreparingReview(true); // Show full-screen loader
@@ -852,7 +469,7 @@ const Customizer = () => {
             console.error("Failed to capture review images", error);
             setIsImageLoading(false);
             setIsPreparingReview(false);
-            setShowReview(true);
+            setEditorError(t('editor.reviewError'));
         }
     };
 
@@ -933,7 +550,7 @@ const Customizer = () => {
                         {['FRONT', 'BACK'].map((tab) => (
                             <button
                                 key={tab}
-                                onClick={() => setActiveTab(tab)}
+                                onClick={() => { setActiveTab(tab); setSelectedItemId(null); setViewState('main'); }}
                                 className={`relative h-full flex flex-col items-center justify-center px-1 min-h-[3.5rem] text-xs lg:text-sm font-bold transition-colors capitalize
                   ${activeTab === tab
                                         ? 'text-black border-b-4 border-[#00A86B]'
@@ -966,6 +583,11 @@ const Customizer = () => {
                         <div className="w-full h-auto flex justify-center">
                             <BottlePreview
                                 side={activeTab}
+                                selectedItemId={selectedItemId}
+                                onSelectItem={selectItem}
+                                onUpdateItem={updateItem}
+                                onRemoveItem={removeItem}
+                                onArtworkReady={artworkReady}
                                 customization={customization}
                                 selectedColor={selectedColor}
                                 selectedSize={selectedSize}
@@ -1075,6 +697,8 @@ const Customizer = () => {
                 <div className={`w-full lg:w-[50%] px-4 py-4 lg:pt-12 lg:pb-12 lg:px-[30px] flex flex-col items-stretch justify-start flex-1 lg:mb-0 min-h-0 
                     ${(isMobile && view !== 'main') ? 'bg-white rounded-2xl shadow-sm mt-2' : 'bg-[#f4f4f4]'} 
                     ${view === 'main' ? 'pb-4 overflow-y-auto' : 'overflow-hidden'}`}>
+                    <DesignItemPanel items={activeItems} selectedItemId={selectedItemId} onSelect={selectItem} onUpdate={updateItem} onAdd={() => setView('main')} />
+                    {editorError && <p role="alert" className="text-red-700 text-sm mb-3">{editorError}</p>}
                     {/* Top Navigation for features (Desktop only) */}
                     {view !== 'main' && (
                         <div className="w-full flex justify-center mt-2 lg:mt-0">
@@ -1101,7 +725,7 @@ const Customizer = () => {
                                 selectedFont={selectedFont}
                                 setSelectedFont={setSelectedFont}
                                 activeTab={activeTab}
-                                isVertical={customization[activeTab].isVertical}
+                                isVertical={selectedItem?.isVertical || false}
                                 setIsVertical={setIsVertical}
                             />
                         </div>
@@ -1163,80 +787,15 @@ const Customizer = () => {
             </main>
 
             {/* Bottom Actions Bar - Outside main for 100% width */}
-            {view !== 'main' && (
+            {(view !== 'main' || hasContent) && (
                 <BottomBar
                     onRemove={handleRemove}
+                    onAdd={() => setView('main')}
+                    hasSelection={!!selectedItem}
                     onReview={handleReview}
                     isDisabled={!hasContent}
                     isPreparing={isPreparingReview}
                 />
-            )}
-
-            {/* HIDDEN CAPTURE AREA */}
-            {/* Render both sides off-screen with fixed 'Desktop' dimensions for high-quality capture */}
-            {/* Position offscreen (not opacity:0) for better html-to-image compatibility on non-iOS browsers */}
-            {/* Only render after initial load to prevent blocking the main thread during startup */}
-            {initialLoadComplete && (
-                <div style={{ position: 'fixed', top: 0, left: '-9999px', width: '433px', height: '650px', pointerEvents: 'none', zIndex: -1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div ref={frontCaptureRef}>
-                        <BottlePreview
-                            side="FRONT"
-                            customization={customization}
-                            selectedColor={selectedColor}
-                            selectedSize={selectedSize}
-                            selectedFont={selectedFont}
-                            selectedMonogram={selectedMonogramBySide.FRONT}
-                            fonts={fonts}
-                            isMobile={isMobile}
-                            view="capture" // Special view mode to force sizes
-                            monogramScale={getMonogramScale('FRONT', true)}
-                            bottleImageSrc={bottleImageSrc}
-                        />
-                    </div>
-                    <div ref={backCaptureRef}>
-                        <BottlePreview
-                            side="BACK"
-                            customization={customization}
-                            selectedColor={selectedColor}
-                            selectedSize={selectedSize}
-                            selectedFont={selectedFont}
-                            selectedMonogram={selectedMonogramBySide.BACK}
-                            fonts={fonts}
-                            isMobile={isMobile}
-                            view="capture"
-                            monogramScale={getMonogramScale('BACK', true)}
-                            bottleImageSrc={backBottleImageSrc}
-                        />
-                    </div>
-
-                    {/* VISUAL DESIGN CAPTURES (No Bottle, Just Design) */}
-                    <div ref={frontDesignCaptureRef} style={{ width: '433px', height: '650px' }}>
-                        <DesignCapture
-                            side="FRONT"
-                            customization={customization}
-                            selectedColor={selectedColor}
-                            selectedFont={selectedFont}
-                            selectedMonogram={selectedMonogramBySide.FRONT}
-                            fonts={fonts}
-                            monogramScale={getMonogramScale('FRONT', true)}
-                            isMobile={isMobile}
-                            selectedSize={selectedSize}
-                        />
-                    </div>
-                    <div ref={backDesignCaptureRef} style={{ width: '433px', height: '650px' }}>
-                        <DesignCapture
-                            side="BACK"
-                            customization={customization}
-                            selectedColor={selectedColor}
-                            selectedFont={selectedFont}
-                            selectedMonogram={selectedMonogramBySide.BACK}
-                            fonts={fonts}
-                            monogramScale={getMonogramScale('BACK', true)}
-                            isMobile={isMobile}
-                            selectedSize={selectedSize}
-                        />
-                    </div>
-                </div>
             )}
 
             {/* Full-screen loader while preparing review */}
@@ -1258,16 +817,6 @@ const Customizer = () => {
                     selectedSize={selectedSize}
                     selectedFont={selectedFont}
                     selectedMonogramBySide={selectedMonogramBySide}
-                    fonts={fonts}
-                    monogramStyles={monogramStyles}
-                    convertToCircleGlyphs={convertToCircleGlyphs}
-                    getCircleFontFamily={getCircleFontFamily}
-                    usesCircleGlyphs={usesCircleGlyphs}
-                    convertToNGramGlyphs={convertToNGramGlyphs}
-                    getNGramFontFamily={getNGramFontFamily}
-                    usesNGramGlyphs={usesNGramGlyphs}
-                    getMonogramFontSize={getMonogramFontSize}
-                    shouldDisplayMonogram={shouldDisplayMonogram}
                     setActiveTab={setActiveTab}
                     setView={setView}
                     frontImage={capturedImages.front}

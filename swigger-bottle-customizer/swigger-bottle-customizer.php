@@ -34,9 +34,37 @@ define('swigger_bottle_BACK_SURCHARGE',  10.00);
 /**
  * Check whether a given side has any customization.
  */
+/** Store bounded transform values and descriptive item metadata, never raw upload markup. */
+function swigger_bottle_sanitize_design_items($items) {
+    if (!is_array($items)) return array();
+    $clean = array();
+    foreach ($items as $item) {
+        if (!is_array($item) || !in_array($item['type'] ?? '', array('text', 'monogram', 'graphic'), true)) continue;
+        $entry = array('type' => $item['type']);
+        foreach (array('id', 'name', 'text', 'monogram', 'font', 'monogramStyle') as $field) {
+            $entry[$field] = sanitize_textarea_field(is_scalar($item[$field] ?? '') ? (string) ($item[$field] ?? '') : '');
+        }
+        foreach (array('x' => array(0, 1, .5), 'y' => array(0, 1, .5), 'width' => array(.001, 1, .7), 'aspect' => array(.001, 1000, 1), 'rotation' => array(-360, 360, 0)) as $field => $limits) {
+            $value = isset($item[$field]) && is_numeric($item[$field]) ? (float) $item[$field] : $limits[2];
+            $entry[$field] = is_finite($value) ? max($limits[0], min($limits[1], $value)) : $limits[2];
+        }
+        $entry['isVertical'] = !empty($item['isVertical']);
+        if (isset($item['graphic']) && is_array($item['graphic'])) {
+            $entry['graphic'] = array(
+                'name' => sanitize_text_field($item['graphic']['name'] ?? ''),
+                'isUpload' => !empty($item['graphic']['isUpload']),
+                'src' => swigger_bottle_sanitize_graphic_src($item['graphic']['src'] ?? ''),
+            );
+        }
+        $clean[] = $entry;
+    }
+    return $clean;
+}
+
 function swigger_bottle_side_has_customization($customization, $side = 'front') {
     $side = ($side === 'back') ? 'back' : 'front';
-    return !empty($customization[$side . '_text'])
+    return !empty($customization[$side . '_items'])
+        || !empty($customization[$side . '_text'])
         || !empty($customization[$side . '_monogram'])
         || !empty($customization[$side . '_graphic'])
         || !empty($customization[$side . '_jersey_number'])
@@ -685,6 +713,9 @@ function swigger_bottle_add_to_cart() {
     // Prepare cart item data
     $cart_item_data = array(
         '_bottle_customization' => array(
+            'design_version' => 2,
+            'front_items' => swigger_bottle_sanitize_design_items($customization_data['frontItems'] ?? array()),
+            'back_items' => swigger_bottle_sanitize_design_items($customization_data['backItems'] ?? array()),
             'color' => sanitize_text_field($customization_data['color'] ?? ''),
             'front_text' => sanitize_text_field($customization_data['frontText'] ?? ''),
             'back_text' => sanitize_text_field($customization_data['backText'] ?? ''),
@@ -1196,7 +1227,14 @@ function swigger_bottle_build_side_summary($customization, $side, $include_amoun
     $side = ($side === 'back') ? 'back' : 'front';
     $parts = array();
 
-    if (!empty($customization[$side . '_jersey_number']) || !empty($customization[$side . '_jersey_name'])) {
+    if (!empty($customization[$side . '_items'])) {
+        foreach ($customization[$side . '_items'] as $design) {
+            $label = strtoupper($design['type'] ?? 'design');
+            $name = $design['name'] ?? '';
+            $style = $design['type'] === 'text' ? ($design['font'] ?? '') : ($design['monogramStyle'] ?? '');
+            $parts[] = trim($label . ': ' . $name . ($style ? ' (' . $style . ')' : ''));
+        }
+    } elseif (!empty($customization[$side . '_jersey_number']) || !empty($customization[$side . '_jersey_name'])) {
         $parts[] = 'JERSEY';
         $nr = !empty($customization[$side . '_jersey_number']) ? $customization[$side . '_jersey_number'] : '';
         $name = !empty($customization[$side . '_jersey_name']) ? $customization[$side . '_jersey_name'] : '';

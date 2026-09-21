@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import UploadConfirmationModal from './UploadConfirmationModal';
 import { cssUrl } from '../utils/metallicStyle';
@@ -13,71 +13,6 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.env.PROD
     : pdfWorkerDevUrl;
 
 const MAX_MASK_DIMENSION = 1024;
-
-const sampleAverageColor = (data, width, height, xStart, yStart, sampleSize) => {
-    let r = 0;
-    let g = 0;
-    let b = 0;
-    let count = 0;
-    const safeX = Math.max(0, xStart);
-    const safeY = Math.max(0, yStart);
-    const xEnd = Math.min(width, safeX + sampleSize);
-    const yEnd = Math.min(height, safeY + sampleSize);
-
-    for (let y = safeY; y < yEnd; y++) {
-        for (let x = safeX; x < xEnd; x++) {
-            const idx = (y * width + x) * 4;
-            r += data[idx];
-            g += data[idx + 1];
-            b += data[idx + 2];
-            count++;
-        }
-    }
-
-    if (!count) return { r: 0, g: 0, b: 0 };
-    return { r: r / count, g: g / count, b: b / count };
-};
-
-const colorDistance = (c1, c2) => {
-    const dr = c1.r - c2.r;
-    const dg = c1.g - c2.g;
-    const db = c1.b - c2.b;
-    return Math.sqrt(dr * dr + dg * dg + db * db);
-};
-
-const applyLuminanceMask = (data, options = {}) => {
-    const {
-        invert = false,
-        threshold = 170,
-        softness = 40,
-        gamma = 0.7
-    } = options;
-
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-
-        const v = 0.299 * r + 0.587 * g + 0.114 * b;
-        const delta = invert ? (v - threshold) : (threshold - v);
-        let a = (delta / softness) * 255;
-
-        if (a < 0) a = 0;
-        if (a > 255) a = 255;
-
-        if (gamma !== 1 && a > 0) {
-            a = Math.pow(a / 255, gamma) * 255;
-        }
-
-        if (a < 25) a = 0;
-        else if (a > 230) a = 255;
-
-        data[i] = 0;
-        data[i + 1] = 0;
-        data[i + 2] = 0;
-        data[i + 3] = Math.round(a);
-    }
-};
 
 const createMetalMaskFromImage = (img, options = {}) => {
     const {
@@ -183,9 +118,8 @@ const createMetalMaskFromImage = (img, options = {}) => {
     return canvas.toDataURL('image/png');
 };
 
-const UploadView = ({ setView, setGraphic, graphicInput, activeTab, selectedColor }) => {
+const UploadView = ({ setView, setGraphic, graphicInput }) => {
     const fileInputRef = useRef(null);
-    const contentRef = useRef(null);
     const [showModal, setShowModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [uploadError, setUploadError] = useState(null);
@@ -387,23 +321,6 @@ const UploadView = ({ setView, setGraphic, graphicInput, activeTab, selectedColo
                     </div>
                 ) : graphicInput ? (
                     <div className="flex flex-col items-center w-full animate-fade-in-up">
-                        {/* Scale Slider */}
-                        <div className="mb-4 w-full flex flex-col gap-2">
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-gray-900 tracking-wider">{t('upload.sizeLabel')}</span>
-                                <span className="text-xs font-bold text-gray-500">{Math.round((graphicInput.scale || 0.5) * 100)}%</span>
-                            </div>
-                            <input
-                                type="range"
-                                min="0.2"
-                                max="1.0"
-                                step="0.05"
-                                value={graphicInput.scale || 0.5}
-                                onChange={(e) => setGraphic({ ...graphicInput, scale: parseFloat(e.target.value) })}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-                            />
-                        </div>
-
                         {/* Processing Controls for Uploaded graphics */}
                         {graphicInput.isUpload && !graphicInput.name?.toLowerCase().endsWith('.svg') && (
                             <div className="w-full bg-white border border-gray-200 rounded-xl p-3.5 mb-4 shadow-sm space-y-3">
@@ -603,6 +520,5 @@ const UploadView = ({ setView, setGraphic, graphicInput, activeTab, selectedColo
 };
 
 export default UploadView;
-
 
 
