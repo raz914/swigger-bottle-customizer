@@ -90,7 +90,7 @@ export async function captureItemSide(items, size, side, fonts, bottleSrc, color
     const production = designCanvas.toDataURL('image/png');
     dctx.globalCompositeOperation = 'source-in';
     const gradient = dctx.createLinearGradient(0, 0, designCanvas.width, 0);
-    const light = /white|mint|pink|lila|lavender|sky/.test(color);
+    const light = /white|frost|grey|gray|sage|mint|pink|lila|lavender|sky/.test(color);
     gradient.addColorStop(0, light ? '#55575b' : '#96989d'); gradient.addColorStop(.45, light ? '#999ba0' : '#eeeeef'); gradient.addColorStop(1, light ? '#55575b' : '#77797e');
     dctx.fillStyle = gradient; dctx.fillRect(0, 0, designCanvas.width, designCanvas.height);
     ctx.drawImage(designCanvas, area.x * canvas.width, area.y * canvas.height, area.width * canvas.width, area.height * canvas.height);

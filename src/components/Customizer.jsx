@@ -24,16 +24,16 @@ const normalizeColorKey = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9
 
 // SWIGGER color definitions per format (Moved outside for robust matching)
 const SWIGGER_COLORS_946ML = [
-    { id: 'midnight-black', name: 'Midnight Black', hex: '#2C2C2C', img: '2026/03/rvs-drinkfles-1-liter-zwart.png' },
-    { id: 'pure-white', name: 'Pure White', hex: '#F5F5F5', img: '2025/12/rvs-drinkfles-1-liter-pure-white-swigger.jpg', lightColor: true },
-    { id: 'warm-white', name: 'Warm White', hex: '#E8E2D6', img: '2025/12/rvs-drinkfles-1-liter-warm-white-swigger.jpg', lightColor: true },
-    { id: 'sky-blue', name: 'Sky Blue', hex: '#8BAFD4', img: '2025/12/rvs-drinkfles-1-liter-sky-blue-swigger.jpg', lightColor: true },
-    { id: 'deep-navy', name: 'Deep Navy', hex: '#4A5568', img: '2025/12/rvs-drinkfles-1-liter-deep-navy-swigger.jpg' },
-    { id: 'berry-wine', name: 'Berry Wine', hex: '#B8878F', img: '2025/12/rvs-drinkfles-1-liter-berry-wine-swigger.jpg' },
-    { id: 'candy-pink', name: 'Candy Pink', hex: '#E8B0C0', img: '2025/12/rvs-drinkfles-1-liter-candy-pink-swigger.jpg', lightColor: true },
-    { id: 'lavender-purple', name: 'Lavender Purple', hex: '#B49CC8', img: '2025/12/rvs-drinkfles-1-liter-lavender-purple-swigger.jpg', lightColor: true },
-    { id: 'forest-green', name: 'Forest Green', hex: '#6B8F7B', img: '2025/12/rvs-drinkfles-1-liter-forest-green-swigger.jpg' },
-    { id: 'dip-dye-mint', name: 'Dip Dye Mint', hex: '#C5E8D8', img: '2025/12/rvs-drinkfles-1-liter-dip-dye-mint-swigger.jpg', lightColor: true },
+    { id: 'midnight-black', name: 'Midnight Black', hex: '#2C2C2C' },
+    { id: 'pure-white', name: 'Pure White', hex: '#F5F5F5', lightColor: true },
+    { id: 'white-frost', name: 'White Frost', hex: '#EEE9DC', lightColor: true },
+    { id: 'light-grey', name: 'Light Grey', hex: '#D3CEC5', lightColor: true },
+    { id: 'sky-blue', name: 'Sky Blue', hex: '#58A9ED', lightColor: true },
+    { id: 'deep-navy', name: 'Deep Navy', hex: '#273A68' },
+    { id: 'candy-pink', name: 'Candy Pink', hex: '#F29CC0', lightColor: true },
+    { id: 'lavender-purple', name: 'Lavender Purple', hex: '#CF77D9', lightColor: true },
+    { id: 'forest-green', name: 'Forest Green', hex: '#407A65' },
+    { id: 'sage-green', name: 'Sage Green', hex: '#A9B89E', lightColor: true },
 ];
 
 const SWIGGER_COLORS_710ML = [

@@ -2,7 +2,10 @@
 export const BOTTLE_FRAME = { width: 433, height: 650 };
 // Updated 1L product photos use a wider, differently centered bottle body.
 // Add colors here as their new photos replace the legacy assets.
-const UPDATED_1L_ASSET_COLORS = new Set(['midnight-black']);
+const UPDATED_1L_ASSET_COLORS = new Set([
+    'midnight-black', 'pure-white', 'white-frost', 'light-grey', 'sky-blue',
+    'deep-navy', 'candy-pink', 'lavender-purple', 'forest-green', 'sage-green',
+]);
 export function getPrintArea(size, side, color) {
     if (size === '946ml' && UPDATED_1L_ASSET_COLORS.has(color)) return side === 'BACK'
         ? { x: .30, y: .405, width: .34, height: .285 }

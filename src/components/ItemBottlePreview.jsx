@@ -95,7 +95,7 @@ export default function ItemBottlePreview({ side, customization, selectedSize, s
     };
     const end = () => { gesture.current = null; };
     const selected = items.find(i => i.id === selectedItemId);
-    return <div className={`item-bottle-frame ${isCapture ? 'item-bottle-capture' : ''} ${/white|mint|pink|lila|lavender|sky/.test(selectedColor) ? 'item-bottle-light' : ''}`}
+    return <div className={`item-bottle-frame ${isCapture ? 'item-bottle-capture' : ''} ${/white|frost|grey|gray|sage|mint|pink|lila|lavender|sky/.test(selectedColor) ? 'item-bottle-light' : ''}`}
         onPointerDown={() => editable && onSelectItem(null)} data-testid="bottle-editor">
         <img ref={imageRef} src={bottleImageSrc} alt={t('bottlePreview.alt', { side })} draggable={false}
             className="item-bottle-image" onLoad={() => setIsImageLoading?.(false)} onError={() => { setImageError(true); setIsImageLoading?.(false); }} />

@@ -9,11 +9,13 @@ test('back print areas follow the visible body center for each bottle size', () 
     assert.equal(getPrintArea('946ml', 'FRONT').x, .31);
 });
 
-test('updated 1L black assets use their recalibrated body centers', () => {
+test('updated 1L assets use their recalibrated body centers', () => {
     assert.equal(getPrintArea('946ml', 'FRONT', 'midnight-black').x, .35);
     assert.equal(getPrintArea('946ml', 'BACK', 'midnight-black').x, .30);
-    assert.equal(getPrintArea('946ml', 'FRONT', 'pure-white').x, .31);
-    assert.equal(getPrintArea('946ml', 'BACK', 'pure-white').x, .365);
+    assert.equal(getPrintArea('946ml', 'FRONT', 'pure-white').x, .35);
+    assert.equal(getPrintArea('946ml', 'BACK', 'pure-white').x, .30);
+    assert.equal(getPrintArea('946ml', 'FRONT', 'sage-green').x, .35);
+    assert.equal(getPrintArea('946ml', 'BACK', 'white-frost').x, .30);
 });
 
 test('all rotated corners remain inside the print area across sizes and sides', () => {
