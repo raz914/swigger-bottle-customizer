@@ -2,7 +2,7 @@
 export const BOTTLE_FRAME = { width: 433, height: 650 };
 export function getPrintArea(size, side) {
     if (side === 'BACK') return {
-        x: size === '536ml' ? .34 : .35,
+        x: size === '536ml' ? .35 : .365,
         y: .405,
         width: .34,
         height: .285,
