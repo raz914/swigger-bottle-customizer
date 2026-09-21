@@ -3,6 +3,9 @@
 .item-bottle-image { position:absolute; top:9%; left:0; width:100%; height:82%; object-fit:cover; pointer-events:none; }
 .item-print-area { position:absolute; }
 .item-print-area.is-active { outline:1px dashed #a1a8b0; }
+.item-center-guide { position:absolute; z-index:9; pointer-events:none; }
+.item-center-guide-vertical { top:0; bottom:0; left:50%; width:1px; transform:translateX(-.5px); background:repeating-linear-gradient(to bottom,#e72b78 0 5px,transparent 5px 8px); }
+.item-center-guide-horizontal { left:0; right:0; top:50%; height:1px; transform:translateY(-.5px); background:repeating-linear-gradient(to right,#e72b78 0 5px,transparent 5px 8px); }
 .bottle-design-item { position:absolute; touch-action:none; cursor:grab; outline:none; }
 .bottle-design-item:active { cursor:grabbing; }
 .bottle-design-item:focus-visible { outline:2px solid #007cad; }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { areaAspect, constrainItem, getPrintArea, itemHeight, itemLabel } from '../utils/designItems';
+import { areaAspect, constrainItem, getPrintArea, itemHeight, itemLabel, snapItemToCenter } from '../utils/designItems';
 import { artworkKey, getItemArtwork } from '../utils/itemArtwork';
 import { t } from '../i18n';
 import './itemEditor.css';
@@ -55,6 +55,7 @@ export default function ItemBottlePreview({ side, customization, selectedSize, s
     const isCapture = view === 'capture';
     const editable = !isCapture && !!onUpdateItem;
     const [imageError, setImageError] = useState(false);
+    const [guides, setGuides] = useState({ vertical: false, horizontal: false });
     useEffect(() => {
         setImageError(false);
         if (imageRef.current?.complete) setIsImageLoading?.(false);
@@ -74,7 +75,13 @@ export default function ItemBottlePreview({ side, customization, selectedSize, s
         const { item, rect } = g;
         let next = { ...item };
         const dx = event.clientX - g.px, dy = event.clientY - g.py;
-        if (g.mode === 'move') { next.x += dx / rect.width; next.y += dy / rect.height; }
+        if (g.mode === 'move') {
+            next.x += dx / rect.width; next.y += dy / rect.height;
+            const snapped = snapItemToCenter(next, rect);
+            next = snapped.item;
+            setGuides(previous => previous.vertical === snapped.guides.vertical && previous.horizontal === snapped.guides.horizontal
+                ? previous : snapped.guides);
+        }
         if (g.mode === 'rotate') {
             const angle = Math.atan2(event.clientY - rect.top - item.y * rect.height, event.clientX - rect.left - item.x * rect.width);
             next.rotation = (item.rotation || 0) + (angle - g.angle) * 180 / Math.PI;
@@ -93,7 +100,7 @@ export default function ItemBottlePreview({ side, customization, selectedSize, s
         }
         onUpdateItem(g.id, constrainItem(next, aspect));
     };
-    const end = () => { gesture.current = null; };
+    const end = () => { gesture.current = null; setGuides({ vertical: false, horizontal: false }); };
     const selected = items.find(i => i.id === selectedItemId);
     return <div className={`item-bottle-frame ${isCapture ? 'item-bottle-capture' : ''} ${/white|frost|grey|gray|sage|mint|pink|lila|lavender|sky/.test(selectedColor) ? 'item-bottle-light' : ''}`}
         onPointerDown={() => editable && onSelectItem(null)} data-testid="bottle-editor">
@@ -102,6 +109,8 @@ export default function ItemBottlePreview({ side, customization, selectedSize, s
         {imageError && <p className="item-image-error" role="alert">{t('editor.imageError')}</p>}
         <div ref={areaRef} className={`item-print-area ${editable && selectedItemId ? 'is-active' : ''}`} data-testid="print-area"
             style={{ left: `${area.x * 100}%`, top: `${area.y * 100}%`, width: `${area.width * 100}%`, height: `${area.height * 100}%` }}>
+            {guides.vertical && <span className="item-center-guide item-center-guide-vertical" data-testid="vertical-center-guide" aria-hidden="true" />}
+            {guides.horizontal && <span className="item-center-guide item-center-guide-horizontal" data-testid="horizontal-center-guide" aria-hidden="true" />}
             {items.map(raw => {
                 const item = constrainItem(raw, aspect), active = editable && item.id === selectedItemId;
                 return <div key={item.id} className={`bottle-design-item ${active ? 'is-selected' : ''}`} data-testid="design-item" data-item-id={item.id}

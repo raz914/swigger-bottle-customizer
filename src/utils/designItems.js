@@ -42,6 +42,14 @@ export function constrainItem(item, aspect) {
         x: Math.max(halfX, Math.min(1 - halfX, item.x)),
         y: Math.max(halfY, Math.min(1 - halfY, item.y)) };
 }
+export function snapItemToCenter(item, rect, thresholdPx = 8) {
+    const vertical = Math.abs(item.x - .5) * rect.width <= thresholdPx;
+    const horizontal = Math.abs(item.y - .5) * rect.height <= thresholdPx;
+    return {
+        item: { ...item, x: vertical ? .5 : item.x, y: horizontal ? .5 : item.y },
+        guides: { vertical, horizontal },
+    };
+}
 export function itemLabel(item) {
     return item.type === 'text' ? item.text : item.type === 'monogram' ? item.monogram : item.graphic?.name || 'Design';
 }

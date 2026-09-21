@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { areaAspect, constrainItem, getPrintArea, itemHeight, serializeItems, summarizeSide } from '../src/utils/designItems.js';
+import { areaAspect, constrainItem, getPrintArea, itemHeight, serializeItems, snapItemToCenter, summarizeSide } from '../src/utils/designItems.js';
 
 test('back print areas follow the visible body center for each bottle size', () => {
     assert.equal(getPrintArea('946ml', 'BACK').x, .365);
@@ -36,6 +36,25 @@ test('all rotated corners remain inside the print area across sizes and sides', 
 test('moving within bounds preserves size and shape', () => {
     const item = { x: .4, y: .5, width: .3, aspect: 2, rotation: 25 };
     assert.deepEqual(constrainItem(item, 1), item);
+});
+test('center snapping treats the horizontal and vertical axes independently', () => {
+    const rect = { width: 200, height: 400 };
+    const verticalOnly = snapItemToCenter({ x: .53, y: .6 }, rect);
+    assert.equal(verticalOnly.item.x, .5);
+    assert.equal(verticalOnly.item.y, .6);
+    assert.deepEqual(verticalOnly.guides, { vertical: true, horizontal: false });
+
+    const horizontalOnly = snapItemToCenter({ x: .6, y: .51 }, rect);
+    assert.equal(horizontalOnly.item.x, .6);
+    assert.equal(horizontalOnly.item.y, .5);
+    assert.deepEqual(horizontalOnly.guides, { vertical: false, horizontal: true });
+
+    const both = snapItemToCenter({ x: .47, y: .49 }, rect);
+    assert.deepEqual({ x: both.item.x, y: both.item.y }, { x: .5, y: .5 });
+    assert.deepEqual(both.guides, { vertical: true, horizontal: true });
+
+    const neither = snapItemToCenter({ x: .44, y: .47 }, rect);
+    assert.deepEqual(neither.guides, { vertical: false, horizontal: false });
 });
 test('mixed repeated items remain in summaries and order metadata in order', () => {
     const items = [{ id: '1', type: 'text', text: 'HELLO', font: 'BeFit', x: .2 },
