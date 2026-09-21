@@ -1,0 +1,749 @@
+/**
+ * Be Fit Bottle Customizer Frontend Styles
+ */
+
+/* Personalize Button */
+/* Personalize Button Wrapper & Box */
+.swigger-customizer-wrapper {
+    margin: 0px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.swigger-customizer-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.swigger-customizer-box:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.swigger-customizer-title {
+    flex: 0 1 auto;
+    font-size: 13px;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.swigger-customizer-icon {
+    flex: 0 0 auto;
+    margin-left: auto;
+    margin-right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.swigger-customizer-icon svg {
+    display: block;
+    margin: 0;
+}
+
+.swigger-customizer-b2b {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #6b7280;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Modal Overlay */
+.swigger-bottle-customizer-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2147483647;
+    background-color: rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+@supports (height: 100dvh) {
+    .swigger-bottle-customizer-modal {
+        height: 100dvh;
+    }
+}
+
+.swigger-bottle-customizer-modal.loading {
+    background-color: #fff !important;
+    opacity: 1 !important;
+    transition: none !important;
+}
+
+.swigger-bottle-customizer-modal.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Disable sticky headers while the configurator is open (common theme selectors) */
+body.swigger-bottle-customizer-open header,
+body.swigger-bottle-customizer-open #masthead,
+body.swigger-bottle-customizer-open .site-header,
+body.swigger-bottle-customizer-open .sticky-header,
+body.swigger-bottle-customizer-open .header-sticky,
+body.swigger-bottle-customizer-open .is-sticky,
+body.swigger-bottle-customizer-open .elementor-sticky--active,
+body.swigger-bottle-customizer-open .ast-sticky-active,
+body.swigger-bottle-customizer-open .ast-header-sticked,
+body.swigger-bottle-customizer-open .wp-block-template-part,
+body.swigger-bottle-customizer-open .hfe-sticky-header,
+body.swigger-bottle-customizer-open .storefront-sticky-header {
+    position: static !important;
+    top: auto !important;
+    transform: none !important;
+}
+
+body.swigger-bottle-customizer-open header#masthead {
+    display: none !important;
+}
+
+body.swigger-bottle-customizer-open {
+    overflow: hidden;
+}
+
+/* Modal Content */
+.swigger-bottle-customizer-modal-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Iframe */
+.swigger-bottle-customizer-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #fff;
+    display: block;
+}
+
+/* Loading State - Iframe remains visible to show internal loaders */
+.swigger-bottle-customizer-modal.loading .swigger-bottle-customizer-iframe {
+    opacity: 1;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Cart Preview Images logic removed */
+
+/* Customization Details in Cart */
+.woocommerce-cart-form .product-name dl.variation {
+    margin-bottom: 10px;
+}
+
+.woocommerce-cart-form .product-name dt {
+    font-weight: 600;
+    color: #333;
+}
+
+.woocommerce-cart-form .product-name dd {
+    margin-left: 0;
+    color: #666;
+}
+
+/* Hide the colon for our custom personalization header */
+/* Targeting various mini-cart structures (standard, FKCart, themes) */
+.variation- dt,
+.variation-\  dt,
+[data-attr-key="variation-"] {
+    display: none !important;
+}
+
+.variation- dd,
+.variation-\  dd,
+.bc-personalization-header {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    width: 100% !important;
+}
+
+/* Order Details Customization */
+.bottle-customization-details {
+    margin-top: 15px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    border-left: none;
+}
+
+.bottle-customization-details p {
+    margin: 5px 0;
+}
+
+.bottle-customization-details img {
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* ===== Cart Personalization Dropdown ===== */
+
+/* ===== Monogram fonts (served from plugin configurator assets) ===== */
+@font-face {
+    font-family: 'ITC Modern';
+    src: url('../../configurator/monogram/itc-modern.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Nexa Script';
+    src: url('../../configurator/monogram/nexa-script.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roman';
+    src: url('../../configurator/monogram/roman.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vine';
+    src: url('../../configurator/monogram/vine.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Two Character Circle';
+    src: url('../../configurator/monogram/two-character-circle.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Three Character Circle';
+    src: url('../../configurator/monogram/three-character-circle.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Two Character N-Gram';
+    src: url('../../configurator/monogram/two-character-n-gram.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Three Character N-Gram';
+    src: url('../../configurator/monogram/three-character-n-gram.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Dropdown container */
+.swigger-bottle-customizer-options {
+    margin-top: 8px;
+}
+
+/* Summary (clickable header) */
+.bc-dropdown-summary {
+    list-style: none !important;
+    cursor: pointer;
+    font-weight: 600;
+    position: relative;
+    padding-right: 20px;
+    font-size: 0.9em;
+    color: #333;
+    user-select: none;
+}
+
+.bc-dropdown-summary::-webkit-details-marker {
+    display: none;
+}
+
+.bc-dropdown-summary::before {
+    content: '▶';
+    position: absolute;
+    right: 0;
+    top: 2px;
+    font-size: 0.8em;
+    transition: transform 0.2s;
+}
+
+details[open] .bc-dropdown-summary::before {
+    transform: rotate(90deg);
+}
+
+/* Dropdown content wrapper */
+.bc-dropdown-content {
+    padding: 10px 0 5px 0;
+}
+
+/* Dropdown rows (match reference layout: label + big preview) */
+.bc-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bc-row {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.bc-label {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: #666;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    min-width: 72px;
+}
+
+.bc-value {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Keep Front/Back summary on first line and place visual preview on next line. */
+.swigger-bottle-customizer-options .bc-row .bc-value {
+    flex: 0 0 100%;
+    margin-top: 2px;
+}
+
+.bc-side-amount {
+    margin-left: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #666;
+    white-space: nowrap;
+}
+
+.bc-monogram {
+    line-height: 1;
+    font-size: 42px;
+    display: inline-block;
+}
+
+.bc-monogram--itc-modern {
+    font-family: 'ITC Modern', serif !important;
+}
+
+.bc-monogram--nexa-script {
+    font-family: 'Nexa Script', cursive !important;
+}
+
+.bc-monogram--roman {
+    font-family: 'Roman', serif !important;
+}
+
+.bc-monogram--vine {
+    font-family: 'Vine', serif !important;
+    letter-spacing: .55em;
+    margin-left: .6em;
+    font-size: 0.7em;
+}
+
+.bc-monogram--circle2 {
+    font-family: 'Two Character Circle', serif !important;
+}
+
+.bc-monogram--circle3 {
+    font-family: 'Three Character Circle', serif !important;
+}
+
+.bc-monogram--ngram2 {
+    font-family: 'Two Character N-Gram', serif !important;
+    margin-left: .1em;
+}
+
+.bc-monogram--ngram3 {
+    font-family: 'Three Character N-Gram', serif !important;
+    margin-left: .1em;
+}
+
+/* Roman monogram: middle character larger (3-letter only) */
+.bc-monogram--roman-split {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.bc-monogram--roman-split .bc-monogram__left,
+.bc-monogram--roman-split .bc-monogram__right {
+    font-size: 0.57em !important;
+}
+
+.bc-monogram--roman-split .bc-monogram__middle {
+    font-size: 0.75em !important;
+}
+
+.bc-graphic-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    display: block;
+}
+
+.bc-text {
+    font-size: 0.95em;
+    color: #444;
+    word-break: break-word;
+}
+
+/* Cart thumbnail override */
+.swigger-bottle-customizer-cart-thumb {
+    width: 100%;
+    height: auto;
+    max-width: 80px;
+    object-fit: contain;
+    border-radius: 4px;
+    border: 1px solid #eee;
+    background: #fafafa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .swigger-bottle-customizer-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+
+    .bc-label {
+        min-width: 10px;
+    }
+
+    .bc-row {
+        gap: 8px;
+    }
+
+    .bottle-preview-thumb {
+        max-width: 60px !important;
+    }
+
+    .bc-monogram {
+        font-size: 31px !important;
+    }
+
+    .bc-graphic-img {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+/* Mini-cart / cart drawer narrow context */
+@media (max-width: 400px) {
+    .bc-row {
+        gap: 10px;
+    }
+
+    .bc-label {
+        min-width: 30px;
+    }
+
+    .bc-monogram {
+        font-size: 31px !important;
+    }
+
+    .bc-graphic-img {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* FKCart drawer: it applies aggressive rules that can shrink text and hide images.
+   Force monogram sizing in that context. */
+#fkcart-modal .bc-monogram {
+    font-size: 31px !important;
+    line-height: 1 !important;
+}
+
+@media (max-width: 400px) {
+    #fkcart-modal .bc-monogram {
+        font-size: 34px !important;
+    }
+}
+
+/* FKCart drawer: Vine monogram 30% smaller */
+#fkcart-modal .bc-monogram--vine {
+    font-size: 32px !important;
+}
+
+@media (max-width: 400px) {
+    #fkcart-modal .bc-monogram--vine {
+        font-size: 24px !important;
+    }
+}
+
+/* FKCart drawer styling simplified to standard WooCommerce behavior */
+
+/* Hide the stray ":" row created by our custom item_data entry.
+   Woo renders an empty key as <dt class="variation-">:</dt> which FKCart shows as a standalone ":" */
+dl.variation dt.variation- {
+    display: none !important;
+}
+
+/* FKCart: hide only the stray colon span with the empty "variation-" key.
+   This targets the specific element: <span class="fkcart-attr-key" data-attr-key="variation-">: </span> */
+#fkcart-modal .fkcart-attr-key[data-attr-key="variation-"] {
+    display: none !important;
+}
+
+/* Yeti-style gradient frames removed */
+
+/* ===== Per-item delivery note (below quantity controls, full width) ===== */
+
+/* Wrapper row for the note — ensures it takes full width as a separate block */
+.bc-mini-cart-note-row {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+.bc-mini-cart-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    margin: 12px 0 4px;
+    background: #f0f9ff;
+    border-radius: 6px;
+    border-left: 3px solid #000;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #333;
+}
+
+.bc-mini-cart-note .bc-note-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: #000;
+}
+
+.bc-mini-cart-note .bc-note-text {
+    flex: 1;
+}
+
+.bc-mini-cart-note .bc-note-text strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 11px;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* FKCart drawer: ensure note row takes full width and looks like a separate block */
+#fkcart-modal .bc-mini-cart-note-row {
+    width: 100% !important;
+    padding: 0 16px !important;
+    margin-top: 8px !important;
+}
+
+#fkcart-modal .bc-mini-cart-note {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 12px 14px !important;
+    font-size: 11px !important;
+}
+
+#fkcart-modal .bc-mini-cart-note .bc-note-icon {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+#fkcart-modal .bc-mini-cart-note .bc-note-text strong {
+    font-size: 11px !important;
+}
+
+/* ===== Yeti-style Collection Page Buttons ===== */
+.swigger-yeti-loop-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+    clear: both;
+}
+
+/* Override default WooCommerce button styles for ADD TO BAG & SELECT OPTIONS */
+.woocommerce ul.products li.product .button.swigger-yeti-add-to-bag,
+.swigger-yeti-add-to-bag,
+.swigger-yeti-select-options {
+    background: #111 !important;
+    color: #fff !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
+    text-transform: none !important;
+    text-decoration: none !important;
+    border: none !important;
+    padding: 10px 15px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    letter-spacing: 0.5px !important;
+    border-radius: 4px !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    flex: 1 !important;
+    text-align: center !important;
+    min-width: 130px !important;
+}
+
+.woocommerce ul.products li.product .button.swigger-yeti-add-to-bag:hover,
+.swigger-yeti-add-to-bag:hover,
+.swigger-yeti-select-options:hover {
+    background: #333 !important;
+    color: #fff !important;
+}
+
+.woocommerce ul.products li.product .button.swigger-yeti-add-to-bag.loading,
+.swigger-yeti-add-to-bag.loading {
+    opacity: 0.7 !important;
+    cursor: wait !important;
+}
+
+.woocommerce ul.products li.product .button.swigger-yeti-add-to-bag.loading > *,
+.swigger-yeti-add-to-bag.loading > * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Rainbow gradient border button for + Ontwerp with transparent center */
+.swigger-yeti-customize {
+    position: relative;
+    background: transparent !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
+    text-transform: none !important;
+    color: #111 !important;
+    text-decoration: none !important;
+    padding: 10px 15px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    letter-spacing: 0.5px !important;
+    border-radius: 4px !important;
+    z-index: 1;
+    border: none !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    flex: 1 !important;
+    text-align: center !important;
+    min-width: 130px !important;
+}
+
+.swigger-yeti-customize::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 2px; /* border thickness */
+    background: linear-gradient(90deg, #ffeb3b, #00bcd4, #3f51b5, #9c27b0, #f44336);
+    border-radius: 4px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.swigger-yeti-customize.swigger-yeti-disabled {
+    color: #888 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    font-size: 12px !important;
+    padding: 10px 8px !important;
+    white-space: nowrap !important;
+    letter-spacing: 0px !important;
+}
+
+.swigger-yeti-customize.swigger-yeti-disabled::before {
+    background: #bbb !important;
+    opacity: 0.5 !important;
+}
+
+.swigger-yeti-customize:hover::before {
+    opacity: 0.8;
+}
+
+.swigger-yeti-customize:hover {
+    color: #111 !important;
+}
+.swigger-yeti-customize.swigger-yeti-disabled:hover {
+    color: #888 !important;
+}
+
+/* Disabled Add to Bag Button */
+.swigger-yeti-add-to-bag.swigger-yeti-disabled {
+    background: #777 !important;
+    color: #bbb !important;
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    box-shadow: none !important;
+}
+
+/* Disabled Button State */
+.swigger-yeti-disabled {
+    position: relative;
+    opacity: 0.45;
+    overflow: hidden;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+.swigger-yeti-customize.swigger-yeti-disabled::after {
+    display: none !important;
+}

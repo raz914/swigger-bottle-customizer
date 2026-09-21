@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Octagonal frame -->
+  <polygon
+    points="30,7 70,7 93,30 93,70 70,93 30,93 7,70 7,30"
+    fill="none"
+    stroke="#1a1a1a"
+    stroke-width="3"
+  />
+  <!-- Inner octagonal frame (thin) -->
+  <polygon
+    points="33,12 67,12 88,33 88,67 67,88 33,88 12,67 12,33"
+    fill="none"
+    stroke="#1a1a1a"
+    stroke-width="1"
+  />
+  <!-- Letters R J M — classic monogram layout, center letter taller -->
+  <!-- R (left) -->
+  <text
+    x="27"
+    y="66"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="38"
+    font-weight="bold"
+    fill="#1a1a1a"
+    text-anchor="middle"
+    letter-spacing="-1"
+  >R</text>
+  <!-- J (center, taller) -->
+  <text
+    x="50"
+    y="72"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="50"
+    font-weight="bold"
+    fill="#1a1a1a"
+    text-anchor="middle"
+    letter-spacing="-1"
+  >J</text>
+  <!-- M (right) -->
+  <text
+    x="74"
+    y="66"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="38"
+    font-weight="bold"
+    fill="#1a1a1a"
+    text-anchor="middle"
+    letter-spacing="-1"
+  >M</text>
+</svg>
