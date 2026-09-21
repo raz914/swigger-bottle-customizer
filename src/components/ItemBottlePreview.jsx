@@ -25,6 +25,25 @@ function Artwork({ item, fonts, onArtworkReady }) {
     return <span className="item-artwork" style={{ maskImage: `url("${result.src}")`, WebkitMaskImage: `url("${result.src}")` }} />;
 }
 
+function RotateIcon() {
+    return <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5.2 8.4A7.5 7.5 0 1 1 4.7 14" />
+        <path d="M5.2 3.8v4.6h4.6" />
+    </svg>;
+}
+
+function DeleteIcon() {
+    return <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M7 7l10 10M17 7 7 17" />
+    </svg>;
+}
+
+function ResizeIcon() {
+    return <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9.5 5H5v4.5M14.5 19H19v-4.5M6 6l12 12" />
+    </svg>;
+}
+
 export default function ItemBottlePreview({ side, customization, selectedSize, selectedColor, bottleImageSrc, fonts, view,
     selectedItemId, onSelectItem, onUpdateItem, onRemoveItem, onArtworkReady, setIsImageLoading }) {
     const areaRef = useRef(null);
@@ -105,9 +124,9 @@ export default function ItemBottlePreview({ side, customization, selectedSize, s
             })}
             {editable && selected && <div className="item-selection-overlay" style={{ left: `${selected.x * 100}%`, top: `${selected.y * 100}%`, width: `${selected.width * 100}%`, height: `${itemHeight(selected, aspect) * 100}%`, transform: `translate(-50%, -50%) rotate(${selected.rotation || 0}deg)` }}
                 onPointerMove={move} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={end}>
-                <button className="item-handle item-rotate" aria-label={t('editor.rotate')} onPointerDown={e => start(e, selected, 'rotate')} onClick={e => e.stopPropagation()}>↶</button>
-                <button className="item-handle item-delete" aria-label={t('editor.delete')} onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onRemoveItem(selected.id); }}>×</button>
-                <button className="item-handle item-resize" aria-label={t('editor.resize')} onPointerDown={e => start(e, selected, 'resize')} onClick={e => e.stopPropagation()}>↘</button>
+                <button className="item-handle item-rotate" aria-label={t('editor.rotate')} onPointerDown={e => start(e, selected, 'rotate')} onClick={e => e.stopPropagation()}><RotateIcon /></button>
+                <button className="item-handle item-delete" aria-label={t('editor.delete')} onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onRemoveItem(selected.id); }}><DeleteIcon /></button>
+                <button className="item-handle item-resize" aria-label={t('editor.resize')} onPointerDown={e => start(e, selected, 'resize')} onClick={e => e.stopPropagation()}><ResizeIcon /></button>
             </div>}
         </div>
     </div>;
