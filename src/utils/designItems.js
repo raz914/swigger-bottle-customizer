@@ -1,7 +1,12 @@
 // All transforms are fractions of the printable area, independent of viewport size.
 export const BOTTLE_FRAME = { width: 433, height: 650 };
 export function getPrintArea(size, side) {
-    if (side === 'BACK') return { x: .33, y: .405, width: .34, height: .285 };
+    if (side === 'BACK') return {
+        x: size === '536ml' ? .34 : .35,
+        y: .405,
+        width: .34,
+        height: .285,
+    };
     return size === '536ml'
         ? { x: .31, y: .485, width: .35, height: .185 }
         : { x: .31, y: .50, width: .31, height: .17 };

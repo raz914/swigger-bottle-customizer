@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { areaAspect, constrainItem, itemHeight, serializeItems, summarizeSide } from '../src/utils/designItems.js';
+import { areaAspect, constrainItem, getPrintArea, itemHeight, serializeItems, summarizeSide } from '../src/utils/designItems.js';
+
+test('back print areas follow the visible body center for each bottle size', () => {
+    assert.equal(getPrintArea('946ml', 'BACK').x, .35);
+    assert.equal(getPrintArea('710ml', 'BACK').x, .35);
+    assert.equal(getPrintArea('536ml', 'BACK').x, .34);
+    assert.equal(getPrintArea('946ml', 'FRONT').x, .31);
+});
 
 test('all rotated corners remain inside the print area across sizes and sides', () => {
     for (const size of ['536ml', '710ml', '946ml']) for (const side of ['FRONT', 'BACK']) {
