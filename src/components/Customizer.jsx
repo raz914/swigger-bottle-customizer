@@ -51,14 +51,17 @@ const SWIGGER_COLORS_710ML = [
 ];
 
 const SWIGGER_COLORS_536ML = [
-    { id: 'midnight-black', name: 'Midnight Black', hex: '#2C2C2C', img: '2025/12/rvs-drinkfles-500ml-midnight-black-swigger.jpg' },
-    { id: 'pure-white', name: 'Pure White', hex: '#F5F5F5', img: '2025/12/rvs-drinkfles-500ml-pure-white-swigger.jpg', lightColor: true },
-    { id: 'warm-white', name: 'Warm White', hex: '#E8E2D6', img: '2025/12/rvs-drinkfles-500ml-warm-white-swigger.jpg', lightColor: true },
-    { id: 'sky-blue', name: 'Sky Blue', hex: '#8BAFD4', img: '2025/12/rvs-drinkfles-500ml-sky-blue-swigger.jpg', lightColor: true },
-    { id: 'candy-pink', name: 'Candy Pink', hex: '#E8B0C0', img: '2025/12/rvs-drinkfles-500ml-candy-pink-swigger.jpg', lightColor: true },
-    { id: 'lavender-purple', name: 'Lavender Purple', hex: '#B49CC8', img: '2025/12/rvs-drinkfles-500ml-lavender-purple-swigger.jpg', lightColor: true },
-    { id: 'dip-dye-mint', name: 'Dip Dye Mint', hex: '#C5E8D8', img: '2025/12/rvs-drinkfles-500ml-dip-dye-mint-swigger.jpg', lightColor: true },
-    { id: 'dip-dye-lila', name: 'Dip Dye Lila', hex: '#C9B8E8', img: '2025/12/rvs-drinkfles-500ml-dip-dye-lila-swigger.jpg', lightColor: true },
+    { id: 'midnight-black', name: 'Midnight Black', hex: '#2C2C2C' },
+    { id: 'deep-navy', name: 'Deep Navy', hex: '#273A68' },
+    { id: 'candy-pink', name: 'Candy Pink', hex: '#F29CC0', lightColor: true },
+    { id: 'sky-blue', name: 'Sky Blue', hex: '#58A9ED', lightColor: true },
+    { id: 'lavender-purple', name: 'Lavender Purple', hex: '#CF77D9', lightColor: true },
+    { id: 'pure-white', name: 'Pure White', hex: '#F5F5F5', lightColor: true },
+    { id: 'mint', name: 'Mint', hex: '#B9E7DE', lightColor: true },
+    { id: 'light-pink', name: 'Light Pink', hex: '#F7B2BE', lightColor: true },
+    { id: 'sage-green', name: 'Sage Green', hex: '#A9B89E', lightColor: true },
+    { id: 'light-grey', name: 'Light Grey', hex: '#D3CEC5', lightColor: true },
+    { id: 'warm-white', name: 'Warm White', hex: '#E8E2D6', lightColor: true },
 ];
 
 const Customizer = () => {
