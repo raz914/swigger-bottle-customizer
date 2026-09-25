@@ -304,11 +304,12 @@ const Customizer = () => {
     };
     const setSelectedFont = font => { setDefaultFont(font); if (selectedItem) updateItem(selectedItem.id, { font }); };
     const setSelectedMonogram = monogramStyle => { setDefaultMonogram(monogramStyle); if (selectedItem) updateItem(selectedItem.id, { monogramStyle }); };
-    // Changing bottle format clamps every item to its new printable area.
+    // A design belongs to one bottle format, so switching formats starts clean.
     useEffect(() => {
-        setCustomization(prev => Object.fromEntries(['FRONT', 'BACK'].map(side => [side, {
-            items: prev[side].items.map(item => constrainItem(item, areaAspect(selectedSize, side)))
-        }])));
+        setCustomization({ FRONT: { items: [] }, BACK: { items: [] } });
+        setSelectedItemId(null);
+        setViewState('main');
+        setEditorError('');
     }, [selectedSize]);
 
     // Master Fonts list (for lookups in Preview/Capture)

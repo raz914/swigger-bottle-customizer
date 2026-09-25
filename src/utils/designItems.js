@@ -10,12 +10,9 @@ export function getPrintArea(size, side, color) {
     if (size === '946ml' && UPDATED_1L_ASSET_COLORS.has(color)) return side === 'BACK'
         ? { x: .30, y: .405, width: .34, height: .285 }
         : { x: .35, y: .50, width: .31, height: .17 };
-    if (side === 'BACK') return {
-        x: size === '536ml' ? .35 : .365,
-        y: .405,
-        width: .34,
-        height: .285,
-    };
+    if (side === 'BACK') return size === '536ml'
+        ? { x: .36, y: .4125, width: .32, height: .27 }
+        : { x: .365, y: .405, width: .34, height: .285 };
     return size === '536ml'
         ? { x: .31, y: .485, width: .35, height: .185 }
         : { x: .31, y: .50, width: .31, height: .17 };
