@@ -5,7 +5,11 @@ const ColorSelector = ({ colors, selectedColor, setSelectedColor, selectedSize, 
     const [isOpen, setIsOpen] = useState(false);
 
     const currentColor = colors.find(c => c.id === selectedColor);
-    const sizes = [{ id: '946ml', label: '946ml' }, { id: '536ml', label: '536ml' }];
+    const sizes = [
+        { id: '946ml', label: '946ml' },
+        { id: '710ml', label: '710ml' },
+        { id: '536ml', label: '536ml' },
+    ];
 
     return (
         <>

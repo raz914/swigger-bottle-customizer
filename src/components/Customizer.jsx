@@ -616,7 +616,7 @@ const Customizer = () => {
                             <div className="flex items-center gap-3">
                                 <span className="text-xs font-bold text-gray-500" style={{ letterSpacing: '1.8px' }}>Formaat:</span>
                                 <div className="flex rounded-lg overflow-hidden border border-gray-300">
-                                    {[{ id: '946ml', label: '946ml' }, { id: '536ml', label: '536ml' }].map(size => (
+                                    {[{ id: '946ml', label: '946ml' }, { id: '710ml', label: '710ml' }, { id: '536ml', label: '536ml' }].map(size => (
                                         <button
                                             key={size.id}
                                             onClick={() => setSelectedSize(size.id)}
