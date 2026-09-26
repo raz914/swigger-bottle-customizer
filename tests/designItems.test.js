@@ -5,14 +5,14 @@ import { areaAspect, constrainItem, getPrintArea, itemHeight, serializeItems, sn
 test('back print areas follow the visible body center for each bottle size', () => {
     assert.equal(getPrintArea('946ml', 'BACK').x, .365);
     assert.deepEqual(getPrintArea('710ml', 'BACK'), {
-        x: .405, y: .40, width: .19, height: .34,
+        x: .428, y: .40, width: .19, height: .34,
     });
     assert.deepEqual(getPrintArea('536ml', 'BACK'), {
         x: .36, y: .4125, width: .32, height: .27,
     });
     assert.equal(getPrintArea('946ml', 'FRONT').x, .31);
     assert.deepEqual(getPrintArea('710ml', 'FRONT'), {
-        x: .405, y: .46, width: .19, height: .18,
+        x: .382, y: .46, width: .19, height: .18,
     });
 });
 

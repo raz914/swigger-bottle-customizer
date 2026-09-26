@@ -11,8 +11,8 @@ export function getPrintArea(size, side, color) {
         ? { x: .30, y: .405, width: .34, height: .285 }
         : { x: .35, y: .50, width: .31, height: .17 };
     if (size === '710ml') return side === 'BACK'
-        ? { x: .405, y: .40, width: .19, height: .34 }
-        : { x: .405, y: .46, width: .19, height: .18 };
+        ? { x: .428, y: .40, width: .19, height: .34 }
+        : { x: .382, y: .46, width: .19, height: .18 };
     if (side === 'BACK') return size === '536ml'
         ? { x: .36, y: .4125, width: .32, height: .27 }
         : { x: .365, y: .405, width: .34, height: .285 };
