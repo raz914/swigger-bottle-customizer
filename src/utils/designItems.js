@@ -8,16 +8,16 @@ const UPDATED_1L_ASSET_COLORS = new Set([
 ]);
 export function getPrintArea(size, side, color) {
     if (size === '946ml' && UPDATED_1L_ASSET_COLORS.has(color)) return side === 'BACK'
-        ? { x: .30, y: .405, width: .34, height: .285 }
-        : { x: .35, y: .50, width: .31, height: .17 };
+        ? { x: .305, y: .420, width: .33, height: .355 }
+        : { x: .343, y: .50, width: .33, height: .17 };
     if (size === '710ml') return side === 'BACK'
-        ? { x: .428, y: .40, width: .19, height: .34 }
-        : { x: .382, y: .46, width: .19, height: .18 };
+        ? { x: .379, y: .38, width: .28, height: .39 }
+        : { x: .345, y: .485, width: .28, height: .18 };
     if (side === 'BACK') return size === '536ml'
-        ? { x: .36, y: .4125, width: .32, height: .27 }
+        ? { x: .359, y: .395, width: .31, height: .38 }
         : { x: .365, y: .405, width: .34, height: .285 };
     return size === '536ml'
-        ? { x: .31, y: .485, width: .35, height: .185 }
+        ? { x: .335, y: .485, width: .30, height: .185 }
         : { x: .31, y: .50, width: .31, height: .17 };
 }
 export function areaAspect(size, side, color) {

@@ -5,24 +5,24 @@ import { areaAspect, constrainItem, getPrintArea, itemHeight, serializeItems, sn
 test('back print areas follow the visible body center for each bottle size', () => {
     assert.equal(getPrintArea('946ml', 'BACK').x, .365);
     assert.deepEqual(getPrintArea('710ml', 'BACK'), {
-        x: .428, y: .40, width: .19, height: .34,
+        x: .379, y: .38, width: .28, height: .39,
     });
     assert.deepEqual(getPrintArea('536ml', 'BACK'), {
-        x: .36, y: .4125, width: .32, height: .27,
+        x: .359, y: .395, width: .31, height: .38,
     });
     assert.equal(getPrintArea('946ml', 'FRONT').x, .31);
     assert.deepEqual(getPrintArea('710ml', 'FRONT'), {
-        x: .382, y: .46, width: .19, height: .18,
+        x: .345, y: .485, width: .28, height: .18,
     });
 });
 
 test('updated 1L assets use their recalibrated body centers', () => {
-    assert.equal(getPrintArea('946ml', 'FRONT', 'midnight-black').x, .35);
-    assert.equal(getPrintArea('946ml', 'BACK', 'midnight-black').x, .30);
-    assert.equal(getPrintArea('946ml', 'FRONT', 'pure-white').x, .35);
-    assert.equal(getPrintArea('946ml', 'BACK', 'pure-white').x, .30);
-    assert.equal(getPrintArea('946ml', 'FRONT', 'sage-green').x, .35);
-    assert.equal(getPrintArea('946ml', 'BACK', 'white-frost').x, .30);
+    assert.equal(getPrintArea('946ml', 'FRONT', 'midnight-black').x, .343);
+    assert.equal(getPrintArea('946ml', 'BACK', 'midnight-black').x, .305);
+    assert.equal(getPrintArea('946ml', 'FRONT', 'pure-white').x, .343);
+    assert.equal(getPrintArea('946ml', 'BACK', 'pure-white').x, .305);
+    assert.equal(getPrintArea('946ml', 'FRONT', 'sage-green').x, .343);
+    assert.equal(getPrintArea('946ml', 'BACK', 'white-frost').x, .305);
 });
 
 test('all rotated corners remain inside the print area across sizes and sides', () => {

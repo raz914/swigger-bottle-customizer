@@ -290,7 +290,7 @@ const UploadView = ({ setView, setGraphic, graphicInput }) => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                     <button
-                        onClick={() => setView('initial')}
+                        onClick={() => setView('main')}
                         className="flex items-center text-xs font-bold text-gray-900 tracking-wider hover:opacity-70 transition-opacity"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -520,5 +520,4 @@ const UploadView = ({ setView, setGraphic, graphicInput }) => {
 };
 
 export default UploadView;
-
 
