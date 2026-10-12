@@ -52,8 +52,8 @@ export function getItemArtwork(item, fonts) {
     return promise;
 }
 
-export async function composeItemsSvg(items, size, side, fonts) {
-    const aspect = areaAspect(size, side), w = 1000, h = w / aspect;
+export async function composeItemsSvg(items, size, side, fonts, color) {
+    const aspect = areaAspect(size, side, color), w = 1000, h = w / aspect;
     const layers = await Promise.all(items.map(async (item, index) => {
         const art = await getItemArtwork(item, fonts);
         const fitted = constrainItem({ ...item, aspect: art.aspect }, aspect);
@@ -75,9 +75,10 @@ function loadImage(src) {
     });
 }
 export async function captureItemSide(items, size, side, fonts, bottleSrc, color) {
-    const svg = await composeItemsSvg(items, size, side, fonts);
+    const svg = await composeItemsSvg(items, size, side, fonts, color);
     const [design, bottle] = await Promise.all([loadImage(svg), loadImage(bottleSrc)]);
     const area = getPrintArea(size, side, color);
+    const aspect = areaAspect(size, side, color);
     const canvas = document.createElement('canvas'); canvas.width = BOTTLE_FRAME.width * 3; canvas.height = BOTTLE_FRAME.height * 3;
     const ctx = canvas.getContext('2d');
     // Match the preview's object-cover image at top 9%, height 82% exactly.
@@ -85,14 +86,36 @@ export async function captureItemSide(items, size, side, fonts, bottleSrc, color
     const scale = Math.max(canvas.width / bottle.width, imageH / bottle.height);
     ctx.save(); ctx.beginPath(); ctx.rect(0, canvas.height * .09, canvas.width, imageH); ctx.clip();
     ctx.drawImage(bottle, (canvas.width - bottle.width * scale) / 2, canvas.height * .09 + (imageH - bottle.height * scale) / 2, bottle.width * scale, bottle.height * scale); ctx.restore();
-    const designCanvas = document.createElement('canvas'); designCanvas.width = 1000; designCanvas.height = Math.round(1000 / areaAspect(size, side));
+    const designCanvas = document.createElement('canvas'); designCanvas.width = 1000; designCanvas.height = Math.round(1000 / aspect);
     const dctx = designCanvas.getContext('2d'); dctx.drawImage(design, 0, 0, designCanvas.width, designCanvas.height);
     const production = designCanvas.toDataURL('image/png');
-    dctx.globalCompositeOperation = 'source-in';
-    const gradient = dctx.createLinearGradient(0, 0, designCanvas.width, 0);
+    // The editor applies metallic shading to each item before rotation. Applying
+    // one gradient to the entire composition changes highlights and overlapping layers.
+    const layers = await Promise.all(items.map(async raw => {
+        const art = await getItemArtwork(raw, fonts);
+        return { item: constrainItem({ ...raw, aspect: art.aspect }, aspect), image: await loadImage(art.src) };
+    }));
+    dctx.clearRect(0, 0, designCanvas.width, designCanvas.height);
     const light = /white|frost|grey|gray|sage|mint|pink|lila|lavender|sky/.test(color);
-    gradient.addColorStop(0, light ? '#55575b' : '#96989d'); gradient.addColorStop(.45, light ? '#999ba0' : '#eeeeef'); gradient.addColorStop(1, light ? '#55575b' : '#77797e');
-    dctx.fillStyle = gradient; dctx.fillRect(0, 0, designCanvas.width, designCanvas.height);
+    for (const { item, image } of layers) {
+        const width = item.width * designCanvas.width;
+        const height = itemHeight(item, aspect) * designCanvas.height;
+        const layer = document.createElement('canvas');
+        layer.width = Math.ceil(width); layer.height = Math.ceil(height);
+        const lctx = layer.getContext('2d');
+        lctx.drawImage(image, 0, 0, layer.width, layer.height);
+        lctx.globalCompositeOperation = 'source-in';
+        const gradient = lctx.createLinearGradient(0, 0, layer.width, 0);
+        gradient.addColorStop(0, light ? '#55575b' : '#96989d');
+        gradient.addColorStop(.45, light ? '#999ba0' : '#eeeeef');
+        gradient.addColorStop(1, light ? '#55575b' : '#77797e');
+        lctx.fillStyle = gradient; lctx.fillRect(0, 0, layer.width, layer.height);
+        dctx.save();
+        dctx.translate(item.x * designCanvas.width, item.y * designCanvas.height);
+        dctx.rotate((item.rotation || 0) * Math.PI / 180);
+        dctx.drawImage(layer, -width / 2, -height / 2, width, height);
+        dctx.restore();
+    }
     ctx.drawImage(designCanvas, area.x * canvas.width, area.y * canvas.height, area.width * canvas.width, area.height * canvas.height);
     return { bottle: canvas.toDataURL('image/png'), design: items.length ? designCanvas.toDataURL('image/png') : null, production: items.length ? production : null, svg: items.length ? svg : null };
 }

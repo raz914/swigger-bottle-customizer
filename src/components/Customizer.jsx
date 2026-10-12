@@ -282,7 +282,7 @@ const Customizer = () => {
     };
     const updateItem = (id, patch) => {
         setCustomization(prev => ({ ...prev, [activeTab]: { items: prev[activeTab].items.map(item =>
-            item.id === id ? constrainItem({ ...item, ...patch }, areaAspect(selectedSize, activeTab)) : item) } }));
+            item.id === id ? constrainItem({ ...item, ...patch }, areaAspect(selectedSize, activeTab, selectedColor)) : item) } }));
     };
     const selectItem = (id) => {
         setSelectedItemId(id);
@@ -299,7 +299,7 @@ const Customizer = () => {
             const item = prev[activeTab].items.find(i => i.id === id);
             if (!item || Math.abs((item.aspect || 1) - aspect) < .0001) return prev;
             return { ...prev, [activeTab]: { items: prev[activeTab].items.map(i => i.id === id
-                ? constrainItem({ ...i, aspect }, areaAspect(selectedSize, activeTab)) : i) } };
+                ? constrainItem({ ...i, aspect }, areaAspect(selectedSize, activeTab, selectedColor)) : i) } };
         });
     };
     const setSelectedFont = font => { setDefaultFont(font); if (selectedItem) updateItem(selectedItem.id, { font }); };
@@ -408,7 +408,7 @@ const Customizer = () => {
         const offset = (activeItems.length % 5) * .055;
         const item = constrainItem({ id, type, x: .5 + offset, y: .4 + offset, width: .7,
             aspect: type === 'text' ? 3 : 1, rotation: 0, font: defaultFont,
-            monogramStyle: defaultMonogram, ...patch }, areaAspect(selectedSize, activeTab));
+            monogramStyle: defaultMonogram, ...patch }, areaAspect(selectedSize, activeTab, selectedColor));
         setCustomization(prev => ({ ...prev, [activeTab]: { items: [...prev[activeTab].items, item] } }));
         setSelectedItemId(id);
     };

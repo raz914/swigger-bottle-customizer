@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Configurator preview regression tests</title>
+<style>
+body { font: 16px system-ui; margin: 32px; background: #f4f4f4; }
+li { margin: 8px 0; }
+.pass { color: #146b34; } .fail { color: #a42020; }
+img { width: 220px; background: white; border: 1px solid #ddd; }
+</style>
+<h1>Configurator preview regression tests</h1>
+<p>Run with the Vite development server. These tests exercise real SVG, font, and canvas exports.</p>
+<p id="status">Running…</p>
+<ul id="results"></ul>
+<div id="examples"></div>
+<script type="module" src="./tests/previewRegression.js"></script>
+</html>

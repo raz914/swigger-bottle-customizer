@@ -26,8 +26,8 @@ test('updated 1L assets use their recalibrated body centers', () => {
 });
 
 test('all rotated corners remain inside the print area across sizes and sides', () => {
-    for (const size of ['536ml', '710ml', '946ml']) for (const side of ['FRONT', 'BACK']) {
-        const area = areaAspect(size, side);
+    for (const size of ['536ml', '710ml', '946ml']) for (const side of ['FRONT', 'BACK']) for (const color of [undefined, 'forest-green', 'pure-white']) {
+        const area = areaAspect(size, side, color);
         for (const ratio of [.1, .5, 1, 5, 20]) for (const rotation of [-175, -90, -45, 0, 30, 90, 160]) {
             const item = constrainItem({ x: -.2, y: 1.4, width: 1.8, aspect: ratio, rotation }, area);
             const angle = rotation * Math.PI / 180;
@@ -39,6 +39,13 @@ test('all rotated corners remain inside the print area across sizes and sides', 
             }
         }
     }
+});
+test('94% square artwork reaches the top of the updated green 946ml back area', () => {
+    const aspect = areaAspect('946ml', 'BACK', 'forest-green');
+    const item = constrainItem({ x: .5, y: -1, width: .94, aspect: 1, rotation: 0 }, aspect);
+    assert.ok(Math.abs(item.y - .29104355362946915) < 1e-12);
+    assert.ok(Math.abs(item.y - itemHeight(item, aspect) / 2) < 1e-12);
+    assert.equal(item.width, .94);
 });
 test('moving within bounds preserves size and shape', () => {
     const item = { x: .4, y: .5, width: .3, aspect: 2, rotation: 25 };
